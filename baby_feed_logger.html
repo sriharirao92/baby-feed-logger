@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Little Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F1EEF5;
+    --card: #FFFFFF;
+    --ink: #362A40;
+    --ink-soft: #6E6178;
+    --rose: #C97B84;
+    --rose-deep: #A85F6B;
+    --sage: #8FA687;
+    --sage-deep: #6F8768;
+    --line: #E3DDEA;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    padding: 20px 14px 40px;
+  }
+  .app{ width:100%; max-width:460px; }
+
+  header{ text-align:center; margin: 10px 0 22px; }
+  header h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 30px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header p{ margin:0; color:var(--ink-soft); font-size:14px; }
+
+  .card{
+    background: var(--card);
+    border-radius: 20px;
+    padding: 18px 18px 20px;
+    box-shadow: 0 1px 2px rgba(54,42,64,0.06), 0 8px 24px rgba(54,42,64,0.06);
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+
+  /* Chip tracker */
+  .chips{ display:flex; flex-wrap:wrap; gap:7px; }
+  .chip{
+    font-size: 12.5px;
+    padding: 6px 11px;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    background: #FAF9FC;
+    transition: all .25s ease;
+  }
+  .chip.filled{
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Conversation */
+  .log{
+    max-height: 260px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom: 14px;
+    padding-right: 2px;
+  }
+  .msg{ font-size:14.5px; line-height:1.45; padding:10px 13px; border-radius:14px; max-width: 88%; }
+  .msg.user{ align-self:flex-end; background: var(--sage); color:white; border-bottom-right-radius:4px; }
+  .msg.bot{ align-self:flex-start; background:#F4F0F8; color:var(--ink); border-bottom-left-radius:4px; }
+  .msg.system{ align-self:center; color: var(--ink-soft); font-size:12.5px; font-style:italic; }
+
+  /* Mic control */
+  .mic-row{ display:flex; flex-direction:column; align-items:center; gap:10px; margin: 6px 0 4px; }
+  .mic-btn{
+    width: 78px; height:78px; border-radius:50%;
+    background: var(--rose);
+    border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(201,123,132,0.4);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .mic-btn:active{ transform: scale(0.94); }
+  .mic-btn.listening{
+    background: var(--rose-deep);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(201,123,132,0.5); }
+    70%{ box-shadow: 0 0 0 22px rgba(201,123,132,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(201,123,132,0); }
+  }
+  .mic-status{ font-size:13px; color: var(--ink-soft); }
+
+  .type-row{ display:flex; gap:8px; margin-top:12px; }
+  .type-row input{
+    flex:1; border:1px solid var(--line); border-radius:12px; padding:10px 12px;
+    font-family:'Inter'; font-size:14px; color:var(--ink); background:#FAF9FC;
+  }
+  .type-row button{
+    border:none; background:var(--ink); color:white; border-radius:12px;
+    padding:0 16px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+
+  /* Review card */
+  .review-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px 12px; margin-bottom:14px;}
+  .field{ display:flex; flex-direction:column; gap:4px; }
+  .field label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+  .field input, .field select{
+    border:1px solid var(--line); border-radius:10px; padding:8px 10px;
+    font-family:'Inter'; font-size:13.5px; color:var(--ink); background:#FAF9FC;
+  }
+  .field.wide{ grid-column: 1 / -1; }
+
+  .btn-row{ display:flex; gap:10px; }
+  .btn{
+    flex:1; border:none; border-radius:12px; padding:12px; font-family:'Inter';
+    font-weight:700; font-size:14.5px; cursor:pointer;
+  }
+  .btn.save{ background: var(--sage-deep); color:white; }
+  .btn.discard{ background:#F4F0F8; color: var(--ink-soft); }
+
+  .setup{ font-size:13px; color:var(--ink-soft); }
+  .setup input{
+    width:100%; margin-top:6px; border:1px solid var(--line); border-radius:10px;
+    padding:9px 11px; font-family:'Inter'; font-size:13.5px; background:#FAF9FC; color:var(--ink);
+  }
+  .setup button{
+    margin-top:10px; width:100%; border:none; background:var(--ink); color:white;
+    border-radius:10px; padding:10px; font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+  .toast{
+    text-align:center; font-size:13px; color: var(--sage-deep); font-weight:600; margin-top:8px; min-height:16px;
+  }
+  .new-btn{
+    display:block; width:100%; text-align:center; margin-top:6px; padding:10px;
+    border-radius:12px; border:1px solid var(--line); background:transparent;
+    color:var(--ink-soft); font-family:'Inter'; font-size:13.5px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Little Log</h1>
+    <p>Tap, talk, and it's on the sheet.</p>
+  </header>
+
+  <div class="card" id="setupCard" style="display:none;">
+    <div class="setup">
+      One-time setup — paste the Web app URL from your Apps Script deployment, and the secret you set in the script.
+      <input id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec">
+      <input id="secretInput" placeholder="Your secret password" style="margin-top:8px;">
+      <button id="saveSetupBtn">Save setup</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="card">
+    <div class="log" id="log"></div>
+
+    <div class="mic-row">
+      <button class="mic-btn" id="micBtn" aria-label="Start talking">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" fill="white"/>
+          <path d="M19 11a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 006 6.93V20H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07A7 7 0 0019 11z" fill="white"/>
+        </svg>
+      </button>
+      <div class="mic-status" id="micStatus">Tap the mic and tell me about the feed</div>
+    </div>
+
+    <div class="type-row">
+      <input id="typeInput" placeholder="...or type it instead">
+      <button id="typeSendBtn">Send</button>
+    </div>
+  </div>
+
+  <div class="card" id="reviewCard" style="display:none;">
+    <div style="font-family:'Fraunces'; font-weight:600; font-size:17px; margin-bottom:12px;">Quick check before I save this</div>
+    <div class="review-grid" id="reviewGrid"></div>
+    <div class="btn-row">
+      <button class="btn discard" id="discardBtn">Discard</button>
+      <button class="btn save" id="saveBtn">Save to sheet</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <button class="new-btn" id="newEntryBtn" style="display:none;">Start a new entry</button>
+</div>
+
+<script>
+const FIELD_DEFS = [
+  {key:'date', label:'Date', type:'date'},
+  {key:'time', label:'Time', type:'text'},
+  {key:'left_breast', label:'Left (min)', type:'number'},
+  {key:'right_breast', label:'Right (min)', type:'number'},
+  {key:'formula', label:'Formula (ml)', type:'number'},
+  {key:'breast_milk', label:'Breast milk (ml)', type:'number'},
+  {key:'pump_output', label:'Pump output (ml)', type:'number'},
+  {key:'pee', label:'Pee', type:'select', options:['None','Light','Medium','Heavy']},
+  {key:'poop', label:'Poop', type:'select', options:['None','Light','Medium','Heavy']},
+  {key:'poop_color', label:'Poop color', type:'text'},
+  {key:'notes', label:'Notes', type:'text', wide:true},
+];
+
+let collected = {};
+let conversation = []; // {role, content}
+let webhookUrl = null;
+let secret = null;
+let recognizing = false;
+let recognition = null;
+
+const chipsEl = document.getElementById('chips');
+const logEl = document.getElementById('log');
+const micBtn = document.getElementById('micBtn');
+const micStatus = document.getElementById('micStatus');
+const typeInput = document.getElementById('typeInput');
+const reviewCard = document.getElementById('reviewCard');
+const reviewGrid = document.getElementById('reviewGrid');
+const newEntryBtn = document.getElementById('newEntryBtn');
+const setupCard = document.getElementById('setupCard');
+
+function pacificNowParts(){
+  const now = new Date();
+  const date = new Intl.DateTimeFormat('en-CA', {timeZone:'America/Los_Angeles', year:'numeric', month:'2-digit', day:'2-digit'}).format(now);
+  const time = new Intl.DateTimeFormat('en-US', {timeZone:'America/Los_Angeles', hour:'numeric', minute:'2-digit', hour12:true}).format(now);
+  return {date, time};
+}
+
+function renderChips(){
+  chipsEl.innerHTML = '';
+  FIELD_DEFS.forEach(f => {
+    const has = collected[f.key] !== undefined && collected[f.key] !== '' && collected[f.key] !== 0 && collected[f.key] !== null;
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (has ? ' filled' : '');
+    chip.textContent = f.label;
+    chipsEl.appendChild(chip);
+  });
+}
+
+function addMsg(role, text){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function speak(text){
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.02;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+async function loadSetup(){
+  try{
+    const w = await window.storage.get('webhook_url');
+    const s = await window.storage.get('webhook_secret');
+    webhookUrl = w ? w.value : null;
+    secret = s ? s.value : null;
+  }catch(e){}
+  if(!webhookUrl || !secret){
+    setupCard.style.display = 'block';
+  }
+}
+
+document.getElementById('saveSetupBtn').onclick = async () => {
+  const w = document.getElementById('webhookInput').value.trim();
+  const s = document.getElementById('secretInput').value.trim();
+  if(!w || !s) return;
+  await window.storage.set('webhook_url', w);
+  await window.storage.set('webhook_secret', s);
+  webhookUrl = w; secret = s;
+  setupCard.style.display = 'none';
+};
+
+function buildSystemPrompt(){
+  const {date, time} = pacificNowParts();
+  return `You are a warm, brief baby-feed logging assistant. The parent will describe a feeding, pumping session, or diaper change in casual natural language, possibly across a few turns.
+
+Fields to fill (JSON keys): date (YYYY-MM-DD), time (h:mm AM/PM Pacific), left_breast (minutes, number), right_breast (minutes, number), formula (ml, number), breast_milk (ml, number), pump_output (ml, number), pee (None/Light/Medium/Heavy), poop (None/Light/Medium/Heavy), poop_color (short text), notes (short text).
+
+Current Pacific date/time if not otherwise specified: date=${date}, time=${time}.
+
+Data collected so far: ${JSON.stringify(collected)}
+
+Rules:
+- Merge new info from the parent's latest message into the data collected so far. Never erase previously collected fields unless the parent corrects them.
+- Default any unmentioned numeric field to 0, and unmentioned pee/poop to "None" ONLY when you are about to mark done=true. While still asking questions, leave fields absent if unknown rather than guessing.
+- If the parent's message covers feeding but never mentions diapers or notes, ask ONE short warm follow-up like "Got it — any diaper change or quick notes to add, or should I go ahead and save this?"
+- Do not interrogate field by field. Ask at most one short natural follow-up question at a time, and only if something important is genuinely missing.
+- If the parent says something like "that's it", "save it", "done", "nothing else" — treat as ready to save: fill remaining unmentioned numeric fields with 0 and pee/poop with "None", set done=true.
+- Keep "reply" short (1-2 sentences), warm, conversational, spoken out loud to a tired parent.
+
+Respond with ONLY valid JSON, no markdown fences, no extra text, in this exact shape:
+{"reply": "string to say out loud", "fields": { ...updated full set of fields you know so far... }, "done": true or false}`;
+}
+
+async function callClaude(userText){
+  addMsg('user', userText);
+  conversation.push({role:'user', content:userText});
+  micStatus.textContent = 'Thinking...';
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: buildSystemPrompt(),
+        messages: conversation.map(m => ({role:m.role, content:m.content}))
+      })
+    });
+    const data = await resp.json();
+    const textBlock = (data.content || []).find(c => c.type === 'text');
+    let raw = textBlock ? textBlock.text : '{}';
+    raw = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+
+    collected = Object.assign({}, collected, parsed.fields || {});
+    renderChips();
+
+    addMsg('bot', parsed.reply);
+    conversation.push({role:'assistant', content: parsed.reply});
+    speak(parsed.reply);
+
+    if(parsed.done){
+      openReview();
+    } else {
+      micStatus.textContent = 'Tap the mic and tell me about the feed';
+    }
+  }catch(e){
+    addMsg('system', "Hmm, I didn't catch that clearly — try again?");
+    micStatus.textContent = 'Tap the mic and tell me about the feed';
+  }
+}
+
+function openReview(){
+  reviewGrid.innerHTML = '';
+  FIELD_DEFS.forEach(f => {
+    const wrap = document.createElement('div');
+    wrap.className = 'field' + (f.wide ? ' wide' : '');
+    const label = document.createElement('label');
+    label.textContent = f.label;
+    wrap.appendChild(label);
+
+    let input;
+    if(f.type === 'select'){
+      input = document.createElement('select');
+      f.options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o;
+        if((collected[f.key] || 'None') === o) opt.selected = true;
+        input.appendChild(opt);
+      });
+    } else {
+      input = document.createElement('input');
+      input.type = f.type;
+      input.value = collected[f.key] !== undefined ? collected[f.key] : (f.type === 'number' ? 0 : '');
+    }
+    input.dataset.key = f.key;
+    wrap.appendChild(input);
+    reviewGrid.appendChild(wrap);
+  });
+  reviewCard.style.display = 'block';
+  reviewCard.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+document.getElementById('discardBtn').onclick = () => resetSession();
+
+document.getElementById('saveBtn').onclick = async () => {
+  const payload = { secret };
+  reviewGrid.querySelectorAll('input, select').forEach(el => {
+    const key = el.dataset.key;
+    const def = FIELD_DEFS.find(f => f.key === key);
+    payload[key] = def.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
+  });
+
+  const toast = document.getElementById('toast');
+  toast.textContent = 'Saving...';
+  toast.style.color = 'var(--ink-soft)';
+
+  try{
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    toast.textContent = 'Saved to the sheet 🌿';
+    toast.style.color = 'var(--sage-deep)';
+    speak("Saved. Nice work.");
+    setTimeout(resetSession, 1400);
+  }catch(e){
+    toast.textContent = "Couldn't reach the sheet — check your setup.";
+    toast.style.color = 'var(--rose-deep)';
+  }
+};
+
+function resetSession(){
+  collected = {};
+  conversation = [];
+  logEl.innerHTML = '';
+  reviewCard.style.display = 'none';
+  newEntryBtn.style.display = 'none';
+  renderChips();
+  addMsg('system', 'Ready for the next one.');
+  micStatus.textContent = 'Tap the mic and tell me about the feed';
+}
+
+// --- Voice input ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(SpeechRecognition){
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    recognizing = true;
+    micBtn.classList.add('listening');
+    micStatus.textContent = 'Listening...';
+  };
+  recognition.onerror = () => {
+    recognizing = false;
+    micBtn.classList.remove('listening');
+    micStatus.textContent = 'Tap the mic and tell me about the feed';
+  };
+  recognition.onend = () => {
+    recognizing = false;
+    micBtn.classList.remove('listening');
+  };
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    callClaude(transcript);
+  };
+} else {
+  micStatus.textContent = 'Voice not supported here — type below instead';
+  micBtn.style.opacity = '0.4';
+}
+
+micBtn.onclick = () => {
+  if(!recognition) return;
+  if(recognizing){ recognition.stop(); return; }
+  try{ recognition.start(); }catch(e){}
+};
+
+document.getElementById('typeSendBtn').onclick = () => {
+  const val = typeInput.value.trim();
+  if(!val) return;
+  typeInput.value = '';
+  callClaude(val);
+};
+typeInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') document.getElementById('typeSendBtn').click();
+});
+
+renderChips();
+loadSetup();
+addMsg('system', 'Tap the mic and tell me about the feed.');
+</script>
+</body>
+</html>
