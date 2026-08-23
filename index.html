@@ -271,24 +271,27 @@ function speak(text){
   }catch(e){}
 }
 
-async function loadSetup(){
+function loadSetup(){
   try{
-    const w = await window.storage.get('webhook_url');
-    const s = await window.storage.get('webhook_secret');
-    webhookUrl = w ? w.value : null;
-    secret = s ? s.value : null;
+    webhookUrl = localStorage.getItem('webhook_url');
+    secret = localStorage.getItem('webhook_secret');
   }catch(e){}
   if(!webhookUrl || !secret){
     setupCard.style.display = 'block';
   }
 }
 
-document.getElementById('saveSetupBtn').onclick = async () => {
+document.getElementById('saveSetupBtn').onclick = () => {
   const w = document.getElementById('webhookInput').value.trim();
   const s = document.getElementById('secretInput').value.trim();
-  if(!w || !s) return;
-  await window.storage.set('webhook_url', w);
-  await window.storage.set('webhook_secret', s);
+  if(!w || !s){
+    alert('Please fill in both the Web app URL and the secret.');
+    return;
+  }
+  try{
+    localStorage.setItem('webhook_url', w);
+    localStorage.setItem('webhook_secret', s);
+  }catch(e){}
   webhookUrl = w; secret = s;
   setupCard.style.display = 'none';
 };
