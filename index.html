@@ -222,7 +222,7 @@ const FIELD_DEFS = [
 ];
 
 let collected = {};
-let conversation = []; // {role, content}
+let awaitingConfirmation = false;
 let webhookUrl = null;
 let secret = null;
 let recognizing = false;
@@ -311,12 +311,13 @@ async function processInput(userText){
     const resp = await fetch(webhookUrl, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({ secret, action: 'parse', transcript: userText, collected })
+      body: JSON.stringify({ secret, action: 'parse', transcript: userText, collected, awaiting_confirmation: awaitingConfirmation })
     });
     const data = await resp.json();
     if(data.status !== 'success') throw new Error(data.message || 'parse failed');
 
     collected = Object.assign({}, collected, data.fields || {});
+    awaitingConfirmation = !!data.awaiting_confirmation;
     renderChips();
     addMsg('bot', data.reply);
     speak(data.reply);
@@ -395,6 +396,7 @@ document.getElementById('saveBtn').onclick = async () => {
 
 function resetSession(){
   collected = {};
+  awaitingConfirmation = false;
   logEl.innerHTML = '';
   reviewCard.style.display = 'none';
   newEntryBtn.style.display = 'none';
