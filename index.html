@@ -592,11 +592,11 @@ function renderPulse(){
   const diapers = entries.filter(e => (e.pee && e.pee!=='None') || (e.poop && e.poop!=='None')).length;
 
   document.getElementById('dailyStrip').innerHTML =
-    stat(feeds.length, 'feeds') +
+    stat(feeds.length, plural(feeds.length,'feed','feeds')) +
     stat(nursed ? nursed+'m' : '—', 'nursed') +
     stat(bottled ? bottled+'ml' : '—', 'bottle') +
     stat(pumped ? pumped+'ml' : '—', 'pumped') +
-    stat(diapers || '—', 'diapers');
+    stat(diapers || '—', plural(diapers,'diaper','diapers'));
 }
 function stat(n,l){
   const blank = (n === '\u2014' || n === 0 || n === '0');
@@ -648,6 +648,7 @@ function renderTimeline(){
 
     return '<div class="entry" data-i="'+i+'">'+
       '<div class="entry-time">'+esc(e.time)+'</div>'+
+      '<div class="entry-rail"><span class="dot"></span></div>'+
       '<div class="entry-body">'+lines.join('')+'</div>'+
       '<div class="edit-hint">›</div></div>';
   }).join('');
@@ -826,9 +827,9 @@ function renderStarters(show){
 
 function greet(){
   if(mode === 'log'){
-    addMsg('bot', "Hi! I'll log a feed for you — just tell me what happened in your own words, like \u201cnursed 10 minutes on the left and a wet diaper.\u201d I'll ask about anything I'm missing, and you can say \u201csave it\u201d whenever you're done.");
+    addMsg('bot', "Tell me what happened, in your own words. I'll fill in the rest — or just say \u201csave it\u201d when you're done.");
   } else {
-    addMsg('bot', "Ask me anything about what you've logged — feeding patterns, gaps between feeds, diaper counts, pumping totals, how today compares to usual. I read the numbers straight from your sheet.");
+    addMsg('bot', "Ask me anything about what you've logged — patterns, gaps, diaper counts, how today compares to usual.");
   }
   renderStarters(true);
 }
@@ -848,6 +849,12 @@ document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
 });
 
 async function processInput(text){
+  text = (text || '').trim();
+  if(!text){
+    addMsg('system', "I didn't catch that — tap the mic and try again.");
+    document.getElementById('micStatus').textContent = 'Tap to talk';
+    return;
+  }
   addMsg('user', text);
   renderStarters(false);
   document.getElementById('micStatus').textContent = 'Thinking…';
@@ -858,8 +865,9 @@ async function processInput(text){
     if(mode === 'ask'){
       const data = await api({action:'ask', question:text});
       if(data.status !== 'success') throw new Error(data.message);
-      addMsg('bot', data.reply);
-      speak(data.reply);
+      const answer = data.reply || "I couldn't work that one out — try asking a different way.";
+      addMsg('bot', answer);
+      speak(answer);
       document.getElementById('micStatus').textContent = 'Tap to talk';
       return;
     }
@@ -870,8 +878,9 @@ async function processInput(text){
     collected = Object.assign({}, collected, data.fields || {});
     awaitingConfirmation = !!data.awaiting_confirmation;
     renderCaptured();
-    addMsg('bot', data.reply);
-    speak(data.reply);
+    const reply = data.reply || "Got that — anything else, or should I save it?";
+    addMsg('bot', reply);
+    speak(reply);
 
     if(data.done) openSheet(null);
     document.getElementById('micStatus').textContent = 'Tap to talk';
@@ -1044,12 +1053,22 @@ if(SR){
     recognizing = false;
     document.getElementById('micBtn').classList.remove('listening');
   };
-  recognition.onerror = () => {
+  recognition.onerror = (ev) => {
     recognizing = false;
     document.getElementById('micBtn').classList.remove('listening');
     document.getElementById('micStatus').textContent = 'Tap to talk';
+    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
+      addMsg('system', 'Microphone access is blocked — allow it for this site in your browser settings.');
+    } else if(ev.error === 'no-speech'){
+      addMsg('system', "I didn't hear anything — tap the mic and try again.");
+    } else if(ev.error !== 'aborted'){
+      addMsg('system', 'Mic trouble (' + ev.error + ') — you can type it below instead.');
+    }
   };
-  recognition.onresult = (e) => processInput(e.results[0][0].transcript);
+  recognition.onresult = (e) => {
+    const r = e.results && e.results[0] && e.results[0][0];
+    processInput(r ? r.transcript : '');
+  };
 } else {
   document.getElementById('micStatus').textContent = 'Voice needs Chrome — type below instead';
   document.getElementById('micBtn').disabled = true;
@@ -1057,7 +1076,11 @@ if(SR){
 document.getElementById('micBtn').onclick = () => {
   if(!recognition) return;
   if(recognizing){ recognition.stop(); return; }
-  try{ recognition.start(); }catch(e){}
+  // TTS playing while the mic opens makes Chrome return empty transcripts.
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  try{ recognition.start(); }catch(e){
+    try{ recognition.stop(); setTimeout(() => recognition.start(), 250); }catch(e2){}
+  }
 };
 document.getElementById('typeSendBtn').onclick = () => {
   const v = document.getElementById('typeInput').value.trim();
