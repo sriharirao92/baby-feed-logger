@@ -2,611 +2,909 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Little Log</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #FBF2F6;
-    --card: #FFFFFF;
-    --ink: #4A2E3D;
-    --ink-soft: #8B6B7A;
-    --rose: #E08CA6;
-    --rose-deep: #C96C87;
-    --sage: #B9A6D9;
-    --sage-deep: #9A82C4;
-    --line: #F3DEE8;
+    --bg:        #FBF4F2;
+    --card:      #FFFFFF;
+    --ink:       #3D2B3A;
+    --ink-soft:  #8A7182;
+    --ink-faint: #B9A5B3;
+    --blush:     #E39AAE;
+    --blush-deep:#C97389;
+    --plum:      #9179A6;
+    --plum-deep: #74588C;
+    --gold:      #E3B378;
+    --mint:      #8FBFA9;
+    --line:      #F1E1E4;
+    --line-soft: #F8EEEF;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
   body{
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    display:flex;
-    justify-content:center;
-    padding: 20px 14px 40px;
+    font-family:'Inter', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex; justify-content:center;
+    padding: 18px 14px calc(34px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing: antialiased;
   }
-  .app{ width:100%; max-width:460px; }
+  .app{ width:100%; max-width:480px; }
 
-  header{ text-align:center; margin: 10px 0 22px; }
-  header h1{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size: 30px;
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
+  /* ---------- Header ---------- */
+  header{ display:flex; align-items:center; justify-content:space-between; margin: 4px 2px 18px; }
+  .brand{ display:flex; align-items:center; gap:9px; }
+  .brand h1{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600; font-size:25px; margin:0; letter-spacing:-0.015em;
   }
-  header p{ margin:0; color:var(--ink-soft); font-size:14px; }
-
-  .bow{ vertical-align:-5px; margin-right:7px; }
-
-  .today-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .today-title{ font-family:'Fraunces', serif; font-weight:600; font-size:17px; }
-  .refresh-btn{
-    background:none; border:none; color:var(--ink-soft); font-size:15px; cursor:pointer;
-    padding:4px 9px; border-radius:8px; line-height:1;
+  .icon-btn{
+    background:var(--card); border:1px solid var(--line); border-radius:11px;
+    width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--ink-soft); padding:0;
   }
-  .refresh-btn:active{ background: var(--line); }
-  .refresh-btn.spinning{ animation: spin 0.6s linear; }
-  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-
-  .stats-row{ display:flex; gap:8px; margin-bottom:14px; }
-  .stat-pill{
-    flex:1; background:var(--bg); border:1px solid var(--line); border-radius:14px;
-    padding:10px 8px; text-align:center;
-  }
-  .stat-pill .num{
-    font-family:'Fraunces', serif; font-weight:700; font-size:18px; color:var(--rose-deep); display:block;
-  }
-  .stat-pill .lbl{ font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; }
-
-  .feed-table{ width:100%; border-collapse:collapse; font-size:13px; }
-  .feed-table th{
-    text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.03em;
-    color:var(--ink-soft); padding:0 6px 6px; font-weight:600;
-  }
-  .feed-table td{ padding:9px 6px; border-top:1px solid var(--line); vertical-align:top; }
-  .feed-table tr:first-child td{ border-top:none; }
-  .feed-table td.time-cell{ color:var(--ink-soft); white-space:nowrap; font-size:12.5px; }
-
-  .diaper-pill{
-    display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:100px;
-    margin-right:3px; margin-bottom:3px; white-space:nowrap;
-  }
-  .diaper-pill.pee{ background:#FFF3D6; color:#9A7B23; }
-  .diaper-pill.poop{ background:#EDE3F7; color:#6B5296; }
-  .diaper-dash{ color: var(--ink-soft); }
-
-  .empty-state{ text-align:center; padding: 16px 10px 6px; color:var(--ink-soft); font-size:13.5px; line-height:1.5; }
+  .icon-btn:active{ background:var(--line-soft); }
 
   .card{
-    background: var(--card);
-    border-radius: 20px;
-    padding: 18px 18px 20px;
-    box-shadow: 0 1px 2px rgba(54,42,64,0.06), 0 8px 24px rgba(54,42,64,0.06);
-    margin-bottom: 16px;
-    border: 1px solid var(--line);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:20px;
+    margin-bottom:14px;
+    box-shadow: 0 1px 2px rgba(61,43,58,.04), 0 10px 30px rgba(61,43,58,.05);
   }
 
-  /* Chip tracker */
-  .chips{ display:flex; flex-wrap:wrap; gap:7px; }
-  .chip{
-    font-size: 12.5px;
-    padding: 6px 11px;
-    border-radius: 100px;
-    border: 1px solid var(--line);
-    color: var(--ink-soft);
-    background: #FAF9FC;
-    transition: all .25s ease;
+  /* ---------- Signature: the elapsed ring ---------- */
+  .pulse-card{ text-align:center; padding: 24px 20px 20px; }
+  .ring-wrap{ position:relative; width:180px; height:180px; margin: 0 auto 4px; }
+  .ring-wrap svg{ transform: rotate(-90deg); display:block; }
+  .ring-center{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:2px;
   }
-  .chip.filled{
-    background: var(--sage);
-    border-color: var(--sage);
-    color: white;
-    font-weight: 600;
+  .elapsed{
+    font-family:'Fraunces', Georgia, serif; font-weight:600;
+    font-size:37px; line-height:1; letter-spacing:-0.02em;
+  }
+  .elapsed .unit{ font-size:19px; font-weight:500; color:var(--ink-soft); margin-left:1px; }
+  .elapsed-lbl{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.09em;
+    color:var(--ink-faint); font-weight:600; margin-top:4px;
+  }
+  .ring-track{ stroke: var(--line-soft); }
+  .ring-fill{ transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1), stroke .9s ease; }
+
+  .daily-strip{
+    display:flex; justify-content:center; gap:0;
+    margin-top:16px; padding-top:16px; border-top:1px solid var(--line-soft);
+  }
+  .daily-stat{ flex:1; padding: 0 4px; }
+  .daily-stat + .daily-stat{ border-left:1px solid var(--line-soft); }
+  .daily-stat .n{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:19px; display:block; line-height:1.15;
+  }
+  .daily-stat .l{
+    font-size:9.5px; text-transform:uppercase; letter-spacing:.07em;
+    color:var(--ink-faint); font-weight:600; margin-top:3px; display:block;
   }
 
-  /* Conversation */
+  /* ---------- Date navigation ---------- */
+  .date-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .date-label{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:16.5px;
+    display:flex; align-items:center; gap:7px; cursor:pointer;
+  }
+  .date-label input[type=date]{
+    position:absolute; opacity:0; width:1px; height:1px; pointer-events:none;
+  }
+  .nav-arrow{
+    background:none; border:none; color:var(--ink-soft); cursor:pointer;
+    font-size:19px; padding:5px 9px; border-radius:9px; line-height:1;
+  }
+  .nav-arrow:disabled{ opacity:.28; cursor:default; }
+  .nav-arrow:not(:disabled):active{ background:var(--line-soft); }
+
+  /* ---------- Timeline ---------- */
+  .entry{
+    display:flex; gap:13px; padding:13px 10px 13px 4px; margin: 0 -6px;
+    border-radius:14px; cursor:pointer; position:relative;
+  }
+  .entry:active{ background:var(--line-soft); }
+  .entry + .entry{ border-top:1px solid var(--line-soft); }
+  .entry-time{
+    font-variant-numeric: tabular-nums;
+    font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    width:60px; flex-shrink:0; padding-top:1px; letter-spacing:-0.01em;
+  }
+  .entry-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+  .entry-line{ display:flex; align-items:center; gap:7px; font-size:13.5px; line-height:1.35; }
+  .entry-line .glyph{ flex-shrink:0; width:15px; display:flex; justify-content:center; }
+  .entry-note{ font-size:12.5px; color:var(--ink-soft); font-style:italic; line-height:1.4; }
+  .lvl{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:1.5px 6px; border-radius:5px; margin-left:1px;
+  }
+  .lvl.Light { background:#FBF0E0; color:#A07A38; }
+  .lvl.Medium{ background:#F6E7EE; color:var(--blush-deep); }
+  .lvl.Heavy { background:#EDE4F3; color:var(--plum-deep); }
+  .edit-hint{ color:var(--ink-faint); font-size:15px; align-self:center; flex-shrink:0; }
+
+  .empty{
+    text-align:center; padding: 26px 16px 20px; color:var(--ink-soft);
+    font-size:13.5px; line-height:1.6;
+  }
+  .empty strong{ display:block; font-family:'Fraunces', Georgia, serif; font-size:16px; color:var(--ink); margin-bottom:5px; font-weight:600; }
+
+  /* ---------- Chat ---------- */
+  .mode-toggle{
+    display:flex; gap:4px; background:var(--bg); border:1px solid var(--line);
+    border-radius:13px; padding:4px; margin-bottom:15px;
+  }
+  .mode-toggle button{
+    flex:1; border:none; background:none; color:var(--ink-soft);
+    font-family:'Inter'; font-size:13px; font-weight:600; padding:9px 4px;
+    border-radius:10px; cursor:pointer;
+  }
+  .mode-toggle button.on{ background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(61,43,58,.09); }
+
   .log{
-    max-height: 260px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    margin-bottom: 14px;
-    padding-right: 2px;
+    display:flex; flex-direction:column; gap:9px;
+    max-height:280px; overflow-y:auto; margin-bottom:15px; padding-right:2px;
   }
-  .msg{ font-size:14.5px; line-height:1.45; padding:10px 13px; border-radius:14px; max-width: 88%; }
-  .msg.user{ align-self:flex-end; background: var(--sage); color:white; border-bottom-right-radius:4px; }
-  .msg.bot{ align-self:flex-start; background:#F4F0F8; color:var(--ink); border-bottom-left-radius:4px; }
-  .msg.system{ align-self:center; color: var(--ink-soft); font-size:12.5px; font-style:italic; }
+  .msg{ font-size:14px; line-height:1.48; padding:11px 14px; border-radius:16px; max-width:87%; }
+  .msg.user{ align-self:flex-end; background:var(--plum); color:#fff; border-bottom-right-radius:5px; }
+  .msg.bot{ align-self:flex-start; background:var(--bg); color:var(--ink); border-bottom-left-radius:5px; }
+  .msg.system{ align-self:center; color:var(--ink-faint); font-size:12px; text-align:center; }
 
-  /* Mic control */
-  .mic-row{ display:flex; flex-direction:column; align-items:center; gap:10px; margin: 6px 0 4px; }
+  .starters{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .starter{
+    font-size:12px; padding:7px 12px; border-radius:100px;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    cursor:pointer; font-family:'Inter'; line-height:1.2;
+  }
+  .starter:active{ background:var(--line); }
+
+  .captured{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .cap{
+    font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:100px;
+    background:#EEF6F2; color:#4E7D68; border:1px solid #DCEBE3;
+    display:flex; align-items:center; gap:5px;
+    animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn{ from{ opacity:0; transform:scale(.85);} to{ opacity:1; transform:scale(1);} }
+
+  .mic-row{ display:flex; flex-direction:column; align-items:center; gap:11px; }
   .mic-btn{
-    width: 78px; height:78px; border-radius:50%;
-    background: var(--rose);
-    border:none;
+    width:76px; height:76px; border-radius:50%; border:none;
+    background: var(--blush); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-    box-shadow: 0 6px 18px rgba(201,123,132,0.4);
-    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 5px 20px rgba(227,154,174,.45);
+    transition: transform .14s ease, background .2s ease;
   }
-  .mic-btn:active{ transform: scale(0.94); }
-  .mic-btn.listening{
-    background: var(--rose-deep);
-    animation: pulse 1.4s ease-in-out infinite;
-  }
+  .mic-btn:active{ transform:scale(.93); }
+  .mic-btn.listening{ background:var(--blush-deep); animation: pulse 1.5s ease-in-out infinite; }
+  .mic-btn:disabled{ opacity:.4; }
   @keyframes pulse{
-    0%{ box-shadow: 0 0 0 0 rgba(201,123,132,0.5); }
-    70%{ box-shadow: 0 0 0 22px rgba(201,123,132,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(201,123,132,0); }
+    0%{ box-shadow:0 0 0 0 rgba(201,115,137,.45); }
+    70%{ box-shadow:0 0 0 20px rgba(201,115,137,0); }
+    100%{ box-shadow:0 0 0 0 rgba(201,115,137,0); }
   }
-  .mic-status{ font-size:13px; color: var(--ink-soft); }
+  .mic-status{ font-size:12.5px; color:var(--ink-faint); }
 
-  .type-row{ display:flex; gap:8px; margin-top:12px; }
+  .type-row{ display:flex; gap:8px; margin-top:14px; }
   .type-row input{
-    flex:1; border:1px solid var(--line); border-radius:12px; padding:10px 12px;
-    font-family:'Inter'; font-size:14px; color:var(--ink); background:#FAF9FC;
+    flex:1; min-width:0; border:1px solid var(--line); border-radius:13px;
+    padding:11px 13px; font-family:'Inter'; font-size:14px; color:var(--ink);
+    background:var(--bg); outline:none;
   }
+  .type-row input:focus{ border-color:var(--blush); }
   .type-row button{
-    border:none; background:var(--ink); color:white; border-radius:12px;
-    padding:0 16px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer;
+    border:none; background:var(--ink); color:#fff; border-radius:13px;
+    padding:0 17px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer;
   }
 
-  /* Review card */
-  .review-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px 12px; margin-bottom:14px;}
-  .field{ display:flex; flex-direction:column; gap:4px; }
-  .field label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+  /* ---------- Editor sheet ---------- */
+  .scrim{
+    position:fixed; inset:0; background:rgba(61,43,58,.42);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+    backdrop-filter: blur(2px);
+  }
+  .scrim.open{ display:flex; }
+  .sheet{
+    background:var(--card); width:100%; max-width:480px;
+    border-radius:26px 26px 0 0; padding:10px 20px calc(24px + env(safe-area-inset-bottom));
+    max-height:92vh; overflow-y:auto;
+    animation: slideUp .3s cubic-bezier(.32,.72,0,1);
+  }
+  @keyframes slideUp{ from{ transform:translateY(100%);} to{ transform:translateY(0);} }
+  .grabber{ width:36px; height:4px; border-radius:99px; background:var(--line); margin:0 auto 16px; }
+  .sheet h2{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:19px; margin:0 0 3px;
+  }
+  .sheet .sub{ font-size:13px; color:var(--ink-soft); margin:0 0 18px; line-height:1.45; }
+
+  .fgroup{ margin-bottom:18px; }
+  .fgroup-title{
+    font-size:10px; text-transform:uppercase; letter-spacing:.09em; font-weight:700;
+    color:var(--ink-faint); margin-bottom:9px;
+  }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .field{ display:flex; flex-direction:column; gap:5px; }
+  .field.wide{ grid-column:1 / -1; }
+  .field label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; }
   .field input, .field select{
-    border:1px solid var(--line); border-radius:10px; padding:8px 10px;
-    font-family:'Inter'; font-size:13.5px; color:var(--ink); background:#FAF9FC;
+    border:1px solid var(--line); border-radius:11px; padding:10px 11px;
+    font-family:'Inter'; font-size:14px; color:var(--ink); background:var(--bg);
+    outline:none; width:100%;
   }
-  .field.wide{ grid-column: 1 / -1; }
+  .field input:focus, .field select:focus{ border-color:var(--blush); }
 
-  .btn-row{ display:flex; gap:10px; }
+  .seg{ display:flex; gap:5px; }
+  .seg button{
+    flex:1; border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    border-radius:10px; padding:9px 2px; font-family:'Inter'; font-size:12px; font-weight:600;
+    cursor:pointer;
+  }
+  .seg button.on{ background:var(--plum); border-color:var(--plum); color:#fff; }
+
+  .sheet-actions{ display:flex; gap:9px; margin-top:6px; }
   .btn{
-    flex:1; border:none; border-radius:12px; padding:12px; font-family:'Inter';
+    border:none; border-radius:14px; padding:14px; font-family:'Inter';
     font-weight:700; font-size:14.5px; cursor:pointer;
   }
-  .btn.save{ background: var(--sage-deep); color:white; }
-  .btn.discard{ background:#F4F0F8; color: var(--ink-soft); }
+  .btn.primary{ flex:1; background:var(--plum-deep); color:#fff; }
+  .btn.ghost{ background:var(--bg); color:var(--ink-soft); border:1px solid var(--line); }
+  .btn.danger{ background:#FBEDEF; color:#B4566A; border:1px solid #F3DCE0; }
+  .sheet-toast{ text-align:center; font-size:13px; font-weight:600; margin-top:11px; min-height:17px; }
 
-  .setup{ font-size:13px; color:var(--ink-soft); }
-  .setup input{
-    width:100%; margin-top:6px; border:1px solid var(--line); border-radius:10px;
-    padding:9px 11px; font-family:'Inter'; font-size:13.5px; background:#FAF9FC; color:var(--ink);
+  /* ---------- Setup ---------- */
+  .setup-body{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+  .setup-body input{
+    width:100%; margin-top:9px; border:1px solid var(--line); border-radius:11px;
+    padding:11px 12px; font-family:'Inter'; font-size:14px; background:var(--bg); color:var(--ink); outline:none;
   }
-  .setup button{
-    margin-top:10px; width:100%; border:none; background:var(--ink); color:white;
-    border-radius:10px; padding:10px; font-weight:600; font-size:13.5px; cursor:pointer;
-  }
-  .toast{
-    text-align:center; font-size:13px; color: var(--sage-deep); font-weight:600; margin-top:8px; min-height:16px;
-  }
-  .new-btn{
-    display:block; width:100%; text-align:center; margin-top:6px; padding:10px;
-    border-radius:12px; border:1px solid var(--line); background:transparent;
-    color:var(--ink-soft); font-family:'Inter'; font-size:13.5px; cursor:pointer;
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
   }
 </style>
 </head>
 <body>
 <div class="app">
+
   <header>
-    <h1><svg class="bow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 12.5 L3 6.5 Q0.5 5 1 8.5 Q1.3 11 3.5 12.5 Q1.3 14 1 16.5 Q0.5 20 3 18.5 Z" fill="var(--rose)"/>
-      <path d="M12 12.5 L21 6.5 Q23.5 5 23 8.5 Q22.7 11 20.5 12.5 Q22.7 14 23 16.5 Q23.5 20 21 18.5 Z" fill="var(--rose-deep)"/>
-      <circle cx="12" cy="12.5" r="2.6" fill="var(--rose-deep)"/>
-    </svg>Little Log</h1>
-    <p>Tap, talk, and it's on the sheet.</p>
-    <a href="#" id="settingsLink" style="display:block; margin-top:6px; font-size:12.5px; color:var(--ink-soft); text-decoration:underline;">Setup / change webhook URL</a>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M11.6 12.4 3.4 7.2Q1 5.8 1.4 8.9Q1.8 11.3 3.9 12.4Q1.8 13.6 1.4 16Q1 19.1 3.4 17.7Z" fill="var(--blush)"/>
+        <path d="M12.4 12.4 20.6 7.2Q23 5.8 22.6 8.9Q22.2 11.3 20.1 12.4Q22.2 13.6 22.6 16Q23 19.1 20.6 17.7Z" fill="var(--blush-deep)"/>
+        <circle cx="12" cy="12.4" r="2.4" fill="var(--plum)"/>
+      </svg>
+      <h1>Little Log</h1>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
   </header>
 
-  <div class="card" id="todayCard">
-    <div class="today-header">
-      <div class="today-title">Today so far</div>
-      <button class="refresh-btn" id="refreshTodayBtn" aria-label="Refresh today's feeds">↻ Refresh</button>
-    </div>
-    <div class="stats-row" id="statsRow"></div>
-    <div id="tableWrap"><div class="empty-state">Loading today's feeds…</div></div>
-  </div>
-
   <div class="card" id="setupCard" style="display:none;">
-    <div class="setup">
-      One-time setup — paste the Web app URL from your Apps Script deployment, and the secret you set in the script.
-      <input id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec">
-      <input id="secretInput" placeholder="Your secret password" style="margin-top:8px;">
-      <button id="saveSetupBtn">Save setup</button>
+    <div class="setup-body">
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:var(--ink); margin-bottom:5px;">Connect your sheet</div>
+      Paste the web app link from your Apps Script deployment, plus the secret you set in the script.
+      <input id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+      <input id="secretInput" placeholder="Secret" autocomplete="off">
+      <div style="display:flex; gap:9px; margin-top:12px;">
+        <button class="btn ghost" id="cancelSetupBtn" style="flex:0 0 auto; padding:12px 16px;">Cancel</button>
+        <button class="btn primary" id="saveSetupBtn" style="padding:12px;">Save connection</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="chips" id="chips"></div>
+  <div class="card pulse-card" id="pulseCard">
+    <div class="ring-wrap">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle class="ring-track" cx="90" cy="90" r="78" fill="none" stroke-width="11"/>
+        <circle class="ring-fill" id="ringFill" cx="90" cy="90" r="78" fill="none"
+                stroke="var(--mint)" stroke-width="11" stroke-linecap="round"
+                stroke-dasharray="490" stroke-dashoffset="490"/>
+      </svg>
+      <div class="ring-center">
+        <div class="elapsed" id="elapsedVal">—</div>
+        <div class="elapsed-lbl" id="elapsedLbl">since last feed</div>
+      </div>
+    </div>
+    <div class="daily-strip" id="dailyStrip"></div>
   </div>
 
   <div class="card">
-    <div class="log" id="log"></div>
+    <div class="date-nav">
+      <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
+      <label class="date-label">
+        <span id="dateLabel">Today</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round">
+          <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
+        </svg>
+        <input type="date" id="datePicker">
+      </label>
+      <button class="nav-arrow" id="nextDay" aria-label="Next day">›</button>
+    </div>
+    <div id="timeline"><div class="empty">Loading…</div></div>
+  </div>
 
+  <div class="card">
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="log" class="on">Log a feed</button>
+      <button data-mode="ask">Ask about data</button>
+    </div>
+    <div class="log" id="log"></div>
+    <div class="starters" id="starters"></div>
+    <div class="captured" id="captured"></div>
     <div class="mic-row">
       <button class="mic-btn" id="micBtn" aria-label="Start talking">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" fill="white"/>
-          <path d="M19 11a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 006 6.93V20H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07A7 7 0 0019 11z" fill="white"/>
+        <svg width="29" height="29" viewBox="0 0 24 24" fill="white">
+          <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z"/>
+          <path d="M19 11a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 006 6.93V20H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07A7 7 0 0019 11z"/>
         </svg>
       </button>
-      <div class="mic-status" id="micStatus">Tap the mic and tell me about the feed</div>
+      <div class="mic-status" id="micStatus">Tap to talk</div>
     </div>
-
     <div class="type-row">
-      <input id="typeInput" placeholder="...or type it instead">
+      <input id="typeInput" placeholder="or type it here" autocomplete="off">
       <button id="typeSendBtn">Send</button>
     </div>
   </div>
+</div>
 
-  <div class="card" id="reviewCard" style="display:none;">
-    <div style="font-family:'Fraunces'; font-weight:600; font-size:17px; margin-bottom:12px;">Quick check before I save this</div>
-    <div class="review-grid" id="reviewGrid"></div>
-    <div class="btn-row">
-      <button class="btn discard" id="discardBtn">Discard</button>
-      <button class="btn save" id="saveBtn">Save to sheet</button>
+<div class="scrim" id="scrim">
+  <div class="sheet" id="sheet">
+    <div class="grabber"></div>
+    <h2 id="sheetTitle">Check this entry</h2>
+    <p class="sub" id="sheetSub">Everything look right? Adjust anything before saving.</p>
+
+    <div class="fgroup">
+      <div class="fgroup-title">When</div>
+      <div class="grid">
+        <div class="field"><label>Date</label><input type="date" data-k="date"></div>
+        <div class="field"><label>Time</label><input type="text" data-k="time" placeholder="8:15 AM"></div>
+      </div>
     </div>
-    <div class="toast" id="toast"></div>
-  </div>
 
-  <button class="new-btn" id="newEntryBtn" style="display:none;">Start a new entry</button>
+    <div class="fgroup">
+      <div class="fgroup-title">Nursing</div>
+      <div class="grid">
+        <div class="field"><label>Left side (min)</label><input type="number" min="0" data-k="left_breast"></div>
+        <div class="field"><label>Right side (min)</label><input type="number" min="0" data-k="right_breast"></div>
+      </div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fgroup-title">Bottle &amp; pumping</div>
+      <div class="grid">
+        <div class="field"><label>Formula (ml)</label><input type="number" min="0" data-k="formula"></div>
+        <div class="field"><label>Breast milk (ml)</label><input type="number" min="0" data-k="breast_milk"></div>
+        <div class="field wide"><label>Pumped (ml)</label><input type="number" min="0" data-k="pump_output"></div>
+      </div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fgroup-title">Diaper</div>
+      <div class="field" style="margin-bottom:11px;">
+        <label>Wet</label>
+        <div class="seg" data-seg="pee"></div>
+      </div>
+      <div class="field" style="margin-bottom:11px;">
+        <label>Dirty</label>
+        <div class="seg" data-seg="poop"></div>
+      </div>
+      <div class="field"><label>Colour of dirty diaper</label><input type="text" data-k="poop_color" placeholder="e.g. yellow"></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fgroup-title">Anything else</div>
+      <div class="field"><input type="text" data-k="notes" placeholder="Fussy, spit up, extra sleepy…"></div>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn ghost" id="closeSheetBtn">Cancel</button>
+      <button class="btn danger" id="deleteBtn" style="display:none;">Delete</button>
+      <button class="btn primary" id="saveEntryBtn">Save</button>
+    </div>
+    <div class="sheet-toast" id="sheetToast"></div>
+  </div>
 </div>
 
 <script>
-const FIELD_DEFS = [
-  {key:'date', label:'Date', type:'date'},
-  {key:'time', label:'Time', type:'text'},
-  {key:'left_breast', label:'Left (min)', type:'number'},
-  {key:'right_breast', label:'Right (min)', type:'number'},
-  {key:'formula', label:'Formula (ml)', type:'number'},
-  {key:'breast_milk', label:'Breast milk (ml)', type:'number'},
-  {key:'pump_output', label:'Pump output (ml)', type:'number'},
-  {key:'pee', label:'Pee', type:'select', options:['None','Light','Medium','Heavy']},
-  {key:'poop', label:'Poop', type:'select', options:['None','Light','Medium','Heavy']},
-  {key:'poop_color', label:'Poop color', type:'text'},
-  {key:'notes', label:'Notes', type:'text', wide:true},
-];
+/* ============ State ============ */
+const LEVELS = ['None','Light','Medium','Heavy'];
+const NUM_KEYS = ['left_breast','right_breast','formula','breast_milk','pump_output'];
+const CAP_LABELS = {
+  left_breast:'Left side', right_breast:'Right side', formula:'Formula',
+  breast_milk:'Breast milk', pump_output:'Pumped', pee:'Wet diaper',
+  poop:'Dirty diaper', poop_color:'Colour', notes:'Note', date:'Date', time:'Time'
+};
 
-let collected = {};
-let awaitingConfirmation = false;
-let webhookUrl = null;
-let secret = null;
-let recognizing = false;
-let recognition = null;
+let webhookUrl = null, secret = null;
+let collected = {}, awaitingConfirmation = false;
+let viewDate = todayStr();
+let entries = [];
+let editingRow = null;
+let recognition = null, recognizing = false;
 
-const chipsEl = document.getElementById('chips');
-const logEl = document.getElementById('log');
-const micBtn = document.getElementById('micBtn');
-const micStatus = document.getElementById('micStatus');
-const typeInput = document.getElementById('typeInput');
-const reviewCard = document.getElementById('reviewCard');
-const reviewGrid = document.getElementById('reviewGrid');
-const newEntryBtn = document.getElementById('newEntryBtn');
-const setupCard = document.getElementById('setupCard');
+/* ============ Helpers ============ */
+function todayStr(){
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+}
+function nowTimeStr(){
+  return new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date());
+}
+function toMinutes(t){
+  const m = String(t).match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if(!m) return null;
+  let h = parseInt(m[1],10) % 12;
+  if(/pm/i.test(m[3])) h += 12;
+  return h*60 + parseInt(m[2],10);
+}
+function shiftDate(str, days){
+  const [y,mo,d] = str.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, mo-1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return dt.toISOString().slice(0,10);
+}
+function prettyDate(str){
+  if(str === todayStr()) return 'Today';
+  if(str === shiftDate(todayStr(),-1)) return 'Yesterday';
+  const [y,mo,d] = str.split('-').map(Number);
+  return new Date(Date.UTC(y,mo-1,d)).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'});
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-function pacificNowParts(){
-  const now = new Date();
-  const date = new Intl.DateTimeFormat('en-CA', {timeZone:'America/Los_Angeles', year:'numeric', month:'2-digit', day:'2-digit'}).format(now);
-  const time = new Intl.DateTimeFormat('en-US', {timeZone:'America/Los_Angeles', hour:'numeric', minute:'2-digit', hour12:true}).format(now);
-  return {date, time};
+/* ============ Dashboard ============ */
+function renderPulse(){
+  const isToday = viewDate === todayStr();
+  const ring = document.getElementById('ringFill');
+  const val = document.getElementById('elapsedVal');
+  const lbl = document.getElementById('elapsedLbl');
+  const CIRC = 490;
+
+  const feeds = entries.filter(e => NUM_KEYS.some(k => e[k] > 0));
+
+  if(isToday && feeds.length){
+    const last = toMinutes(feeds[0].time);
+    const now = toMinutes(nowTimeStr());
+    let diff = (last !== null && now !== null) ? now - last : 0;
+    if(diff < 0) diff += 1440;
+
+    const h = Math.floor(diff/60), m = diff % 60;
+    val.innerHTML = h > 0
+      ? h + '<span class="unit">h</span> ' + m + '<span class="unit">m</span>'
+      : m + '<span class="unit">m</span>';
+    lbl.textContent = 'since last feed';
+
+    // Ring fills over a 3h window — full ring is a nudge, not an alarm.
+    const frac = Math.min(diff / 180, 1);
+    ring.setAttribute('stroke-dashoffset', CIRC * (1 - frac));
+    ring.setAttribute('stroke', frac < 0.6 ? 'var(--mint)' : frac < 0.9 ? 'var(--gold)' : 'var(--blush)');
+  } else if(isToday){
+    val.textContent = '—';
+    lbl.textContent = 'nothing logged yet';
+    ring.setAttribute('stroke-dashoffset', CIRC);
+  } else {
+    val.innerHTML = feeds.length + '<span class="unit"></span>';
+    lbl.textContent = feeds.length === 1 ? 'feed that day' : 'feeds that day';
+    ring.setAttribute('stroke-dashoffset', CIRC * (1 - Math.min(feeds.length/10, 1)));
+    ring.setAttribute('stroke', 'var(--plum)');
+  }
+
+  const nursed = entries.reduce((s,e) => s + (e.left_breast||0) + (e.right_breast||0), 0);
+  const bottled = entries.reduce((s,e) => s + (e.formula||0) + (e.breast_milk||0), 0);
+  const pumped = entries.reduce((s,e) => s + (e.pump_output||0), 0);
+  const diapers = entries.filter(e => (e.pee && e.pee!=='None') || (e.poop && e.poop!=='None')).length;
+
+  document.getElementById('dailyStrip').innerHTML =
+    stat(feeds.length, 'feeds') +
+    stat(nursed ? nursed+'m' : '—', 'nursed') +
+    stat(bottled ? bottled+'ml' : '—', 'bottle') +
+    stat(pumped ? pumped+'ml' : '—', 'pumped') +
+    stat(diapers || '—', 'diapers');
+}
+function stat(n,l){ return '<div class="daily-stat"><span class="n">'+n+'</span><span class="l">'+l+'</span></div>'; }
+
+/* ============ Timeline ============ */
+const GLYPH = {
+  nurse: '<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--blush)"><circle cx="12" cy="12" r="7"/></svg>',
+  bottle:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"><path d="M9 3h6M8 8h8v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2zM10 3v5M14 3v5"/></svg>',
+  pump:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--plum)" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v6M7 9h10l-1.4 10.2A2 2 0 0 1 13.6 21h-3.2a2 2 0 0 1-2-1.8z"/></svg>',
+  wet:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="#7BA9C9"><path d="M12 2.5S5 10.2 5 14.6a7 7 0 0 0 14 0C19 10.2 12 2.5 12 2.5z"/></svg>',
+  dirty: '<svg width="13" height="13" viewBox="0 0 24 24" fill="#B08968"><ellipse cx="12" cy="16.5" rx="8.5" ry="4.5"/><ellipse cx="9.5" cy="11.5" rx="4.5" ry="3.5"/><ellipse cx="14.5" cy="9.5" rx="3.5" ry="3"/></svg>'
+};
+
+function renderTimeline(){
+  const wrap = document.getElementById('timeline');
+  if(!entries.length){
+    wrap.innerHTML = '<div class="empty"><strong>Nothing logged '+(viewDate===todayStr()?'yet today':'that day')+'</strong>'+
+      (viewDate===todayStr() ? 'Tap the mic below and tell me about a feed.' : 'Use the arrows to look at another day.')+'</div>';
+    return;
+  }
+
+  wrap.innerHTML = entries.map((e,i) => {
+    const lines = [];
+
+    const nurse = [];
+    if(e.left_breast) nurse.push(e.left_breast+' min left');
+    if(e.right_breast) nurse.push(e.right_breast+' min right');
+    if(nurse.length) lines.push(line(GLYPH.nurse, nurse.join(' · ')));
+
+    const bottle = [];
+    if(e.formula) bottle.push(e.formula+' ml formula');
+    if(e.breast_milk) bottle.push(e.breast_milk+' ml breast milk');
+    if(bottle.length) lines.push(line(GLYPH.bottle, bottle.join(' · ')));
+
+    if(e.pump_output) lines.push(line(GLYPH.pump, e.pump_output+' ml pumped'));
+
+    if(e.pee && e.pee !== 'None') lines.push(line(GLYPH.wet, 'Wet<span class="lvl '+e.pee+'">'+e.pee+'</span>'));
+    if(e.poop && e.poop !== 'None'){
+      lines.push(line(GLYPH.dirty, 'Dirty<span class="lvl '+e.poop+'">'+e.poop+'</span>'+
+        (e.poop_color ? ' <span style="color:var(--ink-soft)">'+esc(e.poop_color)+'</span>' : '')));
+    }
+
+    if(!lines.length) lines.push(line('', '<span style="color:var(--ink-faint)">Nothing recorded</span>'));
+    if(e.notes) lines.push('<div class="entry-note">'+esc(e.notes)+'</div>');
+
+    return '<div class="entry" data-i="'+i+'">'+
+      '<div class="entry-time">'+esc(e.time)+'</div>'+
+      '<div class="entry-body">'+lines.join('')+'</div>'+
+      '<div class="edit-hint">›</div></div>';
+  }).join('');
+
+  wrap.querySelectorAll('.entry').forEach(el => {
+    el.onclick = () => openSheet(entries[+el.dataset.i]);
+  });
+}
+function line(glyph, text){
+  return '<div class="entry-line"><span class="glyph">'+glyph+'</span><span>'+text+'</span></div>';
 }
 
-function renderChips(){
-  chipsEl.innerHTML = '';
-  FIELD_DEFS.forEach(f => {
-    const has = collected[f.key] !== undefined && collected[f.key] !== '' && collected[f.key] !== 0 && collected[f.key] !== null;
-    const chip = document.createElement('div');
-    chip.className = 'chip' + (has ? ' filled' : '');
-    chip.textContent = f.label;
-    chipsEl.appendChild(chip);
+/* ============ Data ============ */
+async function api(payload){
+  const resp = await fetch(webhookUrl, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({secret}, payload))
+  });
+  return resp.json();
+}
+
+async function loadEntries(){
+  document.getElementById('dateLabel').textContent = prettyDate(viewDate);
+  document.getElementById('datePicker').value = viewDate;
+  document.getElementById('nextDay').disabled = viewDate >= todayStr();
+
+  if(!webhookUrl || !secret){
+    document.getElementById('timeline').innerHTML =
+      '<div class="empty"><strong>Not connected yet</strong>Open settings to link your Google Sheet.</div>';
+    return;
+  }
+  try{
+    const data = await api({action:'entries', date: viewDate});
+    if(data.status !== 'success') throw new Error(data.message);
+    entries = data.entries || [];
+    renderPulse();
+    renderTimeline();
+  }catch(e){
+    document.getElementById('timeline').innerHTML =
+      '<div class="empty"><strong>Couldn\u2019t load that day</strong>Check your connection in settings and try again.</div>';
+  }
+}
+
+/* ============ Chat ============ */
+function addMsg(role, text){
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.textContent = text;
+  const log = document.getElementById('log');
+  log.appendChild(d);
+  log.scrollTop = log.scrollHeight;
+}
+function speak(t){
+  try{ const u = new SpeechSynthesisUtterance(t); u.rate = 1.02; speechSynthesis.speak(u); }catch(e){}
+}
+function renderCaptured(){
+  const el = document.getElementById('captured');
+  const parts = [];
+  NUM_KEYS.forEach(k => { if(collected[k]) parts.push(CAP_LABELS[k]+' '+collected[k]); });
+  if(collected.pee && collected.pee !== 'None') parts.push('Wet · '+collected.pee);
+  if(collected.poop && collected.poop !== 'None') parts.push('Dirty · '+collected.poop);
+  if(collected.poop_color) parts.push(collected.poop_color);
+  if(collected.notes) parts.push('Note added');
+  el.innerHTML = parts.map(p => '<span class="cap">✓ '+esc(p)+'</span>').join('');
+}
+
+const STARTERS = [
+  'Nursed 10 min each side',
+  '60 ml formula',
+  'Wet diaper, medium',
+  'Pumped 90 ml'
+];
+const ASK_STARTERS = [
+  'How many feeds today?',
+  'How long between feeds lately?',
+  'When did she last poop?',
+  'Is today different from usual?',
+  'How much have I pumped this week?',
+  'Am I favouring one side?'
+];
+
+let mode = 'log';
+
+function currentStarters(){ return mode === 'log' ? STARTERS : ASK_STARTERS; }
+
+function renderStarters(show){
+  const el = document.getElementById('starters');
+  if(!show){ el.innerHTML = ''; return; }
+  el.innerHTML = currentStarters().map(s => '<button class="starter">'+esc(s)+'</button>').join('');
+  el.querySelectorAll('.starter').forEach(b => {
+    b.onclick = () => { renderStarters(false); processInput(b.textContent); };
   });
 }
 
-function addMsg(role, text){
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  div.textContent = text;
-  logEl.appendChild(div);
-  logEl.scrollTop = logEl.scrollHeight;
+function greet(){
+  if(mode === 'log'){
+    addMsg('bot', "Hi! I'll log a feed for you — just tell me what happened in your own words, like \u201cnursed 10 minutes on the left and a wet diaper.\u201d I'll ask about anything I'm missing, and you can say \u201csave it\u201d whenever you're done.");
+  } else {
+    addMsg('bot', "Ask me anything about what you've logged — feeding patterns, gaps between feeds, diaper counts, pumping totals, how today compares to usual. I read the numbers straight from your sheet.");
+  }
+  renderStarters(true);
 }
 
-function speak(text){
-  try{
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.02;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
+document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    if(mode === b.dataset.mode) return;
+    mode = b.dataset.mode;
+    document.getElementById('modeToggle').querySelectorAll('button')
+      .forEach(x => x.classList.toggle('on', x.dataset.mode === mode));
+    collected = {}; awaitingConfirmation = false;
+    renderCaptured();
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('typeInput').placeholder = mode === 'log' ? 'or type it here' : 'or type your question';
+    greet();
+  };
+});
 
-function loadSetup(){
+async function processInput(text){
+  addMsg('user', text);
+  renderStarters(false);
+  document.getElementById('micStatus').textContent = 'Thinking…';
+
+  if(!webhookUrl || !secret){ openSetup(); return; }
+
   try{
-    webhookUrl = localStorage.getItem('webhook_url');
-    secret = localStorage.getItem('webhook_secret');
-  }catch(e){}
-  if(!webhookUrl || !secret){
-    setupCard.style.display = 'block';
+    if(mode === 'ask'){
+      const data = await api({action:'ask', question:text});
+      if(data.status !== 'success') throw new Error(data.message);
+      addMsg('bot', data.reply);
+      speak(data.reply);
+      document.getElementById('micStatus').textContent = 'Tap to talk';
+      return;
+    }
+
+    const data = await api({action:'parse', transcript:text, collected, awaiting_confirmation:awaitingConfirmation});
+    if(data.status !== 'success') throw new Error(data.message);
+
+    collected = Object.assign({}, collected, data.fields || {});
+    awaitingConfirmation = !!data.awaiting_confirmation;
+    renderCaptured();
+    addMsg('bot', data.reply);
+    speak(data.reply);
+
+    if(data.done) openSheet(null);
+    document.getElementById('micStatus').textContent = 'Tap to talk';
+  }catch(e){
+    addMsg('system', 'That didn\u2019t go through — ' + (e.message || e));
+    document.getElementById('micStatus').textContent = 'Tap to talk';
   }
 }
 
+function resetChat(){
+  collected = {}; awaitingConfirmation = false;
+  document.getElementById('log').innerHTML = '';
+  renderCaptured();
+  greet();
+}
+
+/* ============ Editor sheet ============ */
+function buildSegs(){
+  document.querySelectorAll('.seg').forEach(seg => {
+    seg.innerHTML = LEVELS.map(l => '<button type="button" data-v="'+l+'">'+l+'</button>').join('');
+    seg.querySelectorAll('button').forEach(b => {
+      b.onclick = () => {
+        seg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+      };
+    });
+  });
+}
+function setSeg(name, val){
+  const seg = document.querySelector('.seg[data-seg="'+name+'"]');
+  seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === (val || 'None')));
+}
+function getSeg(name){
+  const on = document.querySelector('.seg[data-seg="'+name+'"] button.on');
+  return on ? on.dataset.v : 'None';
+}
+
+function openSheet(existing){
+  const src = existing || Object.assign({date: todayStr(), time: nowTimeStr()}, collected);
+  editingRow = existing ? existing.row : null;
+
+  document.getElementById('sheetTitle').textContent = existing ? 'Edit this entry' : 'Check this entry';
+  document.getElementById('sheetSub').textContent = existing
+    ? 'Change anything that needs fixing, or remove it entirely.'
+    : 'Everything look right? Adjust anything before saving.';
+  document.getElementById('deleteBtn').style.display = existing ? 'block' : 'none';
+  document.getElementById('sheetToast').textContent = '';
+
+  document.querySelectorAll('#sheet [data-k]').forEach(el => {
+    const k = el.dataset.k;
+    let v = src[k];
+    if(el.type === 'number') v = v || 0;
+    el.value = (v === undefined || v === null) ? '' : v;
+  });
+  setSeg('pee', src.pee);
+  setSeg('poop', src.poop);
+
+  document.getElementById('scrim').classList.add('open');
+}
+function closeSheet(){
+  document.getElementById('scrim').classList.remove('open');
+  editingRow = null;
+}
+
+document.getElementById('saveEntryBtn').onclick = async () => {
+  const payload = {};
+  document.querySelectorAll('#sheet [data-k]').forEach(el => {
+    payload[el.dataset.k] = el.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
+  });
+  payload.pee = getSeg('pee');
+  payload.poop = getSeg('poop');
+
+  const toast = document.getElementById('sheetToast');
+  toast.textContent = 'Saving…'; toast.style.color = 'var(--ink-soft)';
+
+  try{
+    const res = editingRow
+      ? await api(Object.assign({action:'update', row:editingRow}, payload))
+      : await api(payload);
+    if(res.status !== 'success') throw new Error(res.message);
+
+    toast.textContent = editingRow ? 'Updated' : 'Saved';
+    toast.style.color = 'var(--mint)';
+    speak(editingRow ? 'Updated.' : 'Saved.');
+
+    const wasNew = !editingRow;
+    if(payload.date && payload.date !== viewDate) viewDate = payload.date;
+    setTimeout(async () => {
+      closeSheet();
+      if(wasNew) resetChat();
+      await loadEntries();
+    }, 700);
+  }catch(e){
+    toast.textContent = 'Didn\u2019t save — ' + (e.message || e);
+    toast.style.color = 'var(--blush-deep)';
+  }
+};
+
+document.getElementById('deleteBtn').onclick = async () => {
+  if(!editingRow) return;
+  const toast = document.getElementById('sheetToast');
+  toast.textContent = 'Removing…'; toast.style.color = 'var(--ink-soft)';
+  try{
+    const res = await api({action:'delete', row:editingRow});
+    if(res.status !== 'success') throw new Error(res.message);
+    closeSheet();
+    await loadEntries();
+  }catch(e){
+    toast.textContent = 'Didn\u2019t remove — ' + (e.message || e);
+    toast.style.color = 'var(--blush-deep)';
+  }
+};
+
+document.getElementById('closeSheetBtn').onclick = closeSheet;
+document.getElementById('scrim').onclick = (e) => { if(e.target.id === 'scrim') closeSheet(); };
+
+/* ============ Setup ============ */
+function openSetup(){
+  document.getElementById('webhookInput').value = webhookUrl || '';
+  document.getElementById('secretInput').value = secret || '';
+  document.getElementById('setupCard').style.display = 'block';
+  document.getElementById('setupCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+document.getElementById('settingsBtn').onclick = openSetup;
+document.getElementById('cancelSetupBtn').onclick = () => {
+  if(webhookUrl && secret) document.getElementById('setupCard').style.display = 'none';
+};
 document.getElementById('saveSetupBtn').onclick = () => {
   const w = document.getElementById('webhookInput').value.trim();
   const s = document.getElementById('secretInput').value.trim();
-  if(!w || !s){
-    alert('Please fill in both the Web app URL and the secret.');
-    return;
-  }
+  if(!w || !s){ alert('Both the link and the secret are needed.'); return; }
   try{
     localStorage.setItem('webhook_url', w);
     localStorage.setItem('webhook_secret', s);
   }catch(e){}
   webhookUrl = w; secret = s;
-  setupCard.style.display = 'none';
-  loadTodayFeeds();
+  document.getElementById('setupCard').style.display = 'none';
+  loadEntries();
+};
+function loadSetup(){
+  try{
+    webhookUrl = localStorage.getItem('webhook_url');
+    secret = localStorage.getItem('webhook_secret');
+  }catch(e){}
+  if(!webhookUrl || !secret) openSetup();
+}
+
+/* ============ Date nav ============ */
+document.getElementById('prevDay').onclick = () => { viewDate = shiftDate(viewDate,-1); loadEntries(); };
+document.getElementById('nextDay').onclick = () => {
+  if(viewDate >= todayStr()) return;
+  viewDate = shiftDate(viewDate, 1); loadEntries();
+};
+document.getElementById('datePicker').onchange = (e) => {
+  if(e.target.value){ viewDate = e.target.value; loadEntries(); }
 };
 
-async function processInput(userText){
-  addMsg('user', userText);
-  micStatus.textContent = 'Thinking...';
-
-  if(!webhookUrl || !secret){
-    setupCard.style.display = 'block';
-    micStatus.textContent = 'Tap the mic and tell me about the feed';
-    return;
-  }
-
-  try{
-    const resp = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({ secret, action: 'parse', transcript: userText, collected, awaiting_confirmation: awaitingConfirmation })
-    });
-    const data = await resp.json();
-    if(data.status !== 'success') throw new Error(data.message || 'parse failed');
-
-    collected = Object.assign({}, collected, data.fields || {});
-    awaitingConfirmation = !!data.awaiting_confirmation;
-    renderChips();
-    addMsg('bot', data.reply);
-    speak(data.reply);
-
-    if(data.done){
-      openReview();
-    } else {
-      micStatus.textContent = 'Tap the mic and tell me about the feed';
-    }
-  }catch(e){
-    addMsg('system', "Parser error: " + (e.message || e) + " — check the Apps Script Executions log for details.");
-    micStatus.textContent = 'Tap the mic and tell me about the feed';
-  }
-}
-
-function openReview(){
-  reviewGrid.innerHTML = '';
-  FIELD_DEFS.forEach(f => {
-    const wrap = document.createElement('div');
-    wrap.className = 'field' + (f.wide ? ' wide' : '');
-    const label = document.createElement('label');
-    label.textContent = f.label;
-    wrap.appendChild(label);
-
-    let input;
-    if(f.type === 'select'){
-      input = document.createElement('select');
-      f.options.forEach(o => {
-        const opt = document.createElement('option');
-        opt.value = o; opt.textContent = o;
-        if((collected[f.key] || 'None') === o) opt.selected = true;
-        input.appendChild(opt);
-      });
-    } else {
-      input = document.createElement('input');
-      input.type = f.type;
-      input.value = collected[f.key] !== undefined ? collected[f.key] : (f.type === 'number' ? 0 : '');
-    }
-    input.dataset.key = f.key;
-    wrap.appendChild(input);
-    reviewGrid.appendChild(wrap);
-  });
-  reviewCard.style.display = 'block';
-  reviewCard.scrollIntoView({behavior:'smooth', block:'start'});
-}
-
-document.getElementById('discardBtn').onclick = () => resetSession();
-
-document.getElementById('saveBtn').onclick = async () => {
-  const payload = { secret };
-  reviewGrid.querySelectorAll('input, select').forEach(el => {
-    const key = el.dataset.key;
-    const def = FIELD_DEFS.find(f => f.key === key);
-    payload[key] = def.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
-  });
-
-  const toast = document.getElementById('toast');
-  toast.textContent = 'Saving...';
-  toast.style.color = 'var(--ink-soft)';
-
-  try{
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify(payload)
-    });
-    toast.textContent = 'Saved to the sheet 🌿';
-    toast.style.color = 'var(--sage-deep)';
-    speak("Saved. Nice work.");
-    loadTodayFeeds();
-    setTimeout(resetSession, 1400);
-  }catch(e){
-    toast.textContent = "Couldn't reach the sheet — check your setup.";
-    toast.style.color = 'var(--rose-deep)';
-  }
-};
-
-function resetSession(){
-  collected = {};
-  awaitingConfirmation = false;
-  logEl.innerHTML = '';
-  reviewCard.style.display = 'none';
-  newEntryBtn.style.display = 'none';
-  renderChips();
-  addMsg('system', 'Ready for the next one.');
-  micStatus.textContent = 'Tap the mic and tell me about the feed';
-}
-
-// --- Voice input ---
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if(SpeechRecognition){
-  recognition = new SpeechRecognition();
+/* ============ Voice ============ */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(SR){
+  recognition = new SR();
   recognition.lang = 'en-US';
   recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
   recognition.onstart = () => {
     recognizing = true;
-    micBtn.classList.add('listening');
-    micStatus.textContent = 'Listening...';
-  };
-  recognition.onerror = () => {
-    recognizing = false;
-    micBtn.classList.remove('listening');
-    micStatus.textContent = 'Tap the mic and tell me about the feed';
+    document.getElementById('micBtn').classList.add('listening');
+    document.getElementById('micStatus').textContent = 'Listening…';
   };
   recognition.onend = () => {
     recognizing = false;
-    micBtn.classList.remove('listening');
+    document.getElementById('micBtn').classList.remove('listening');
   };
-  recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    processInput(transcript);
+  recognition.onerror = () => {
+    recognizing = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    document.getElementById('micStatus').textContent = 'Tap to talk';
   };
+  recognition.onresult = (e) => processInput(e.results[0][0].transcript);
 } else {
-  micStatus.textContent = 'Voice not supported here — type below instead';
-  micBtn.style.opacity = '0.4';
+  document.getElementById('micStatus').textContent = 'Voice needs Chrome — type below instead';
+  document.getElementById('micBtn').disabled = true;
 }
-
-micBtn.onclick = () => {
+document.getElementById('micBtn').onclick = () => {
   if(!recognition) return;
   if(recognizing){ recognition.stop(); return; }
   try{ recognition.start(); }catch(e){}
 };
-
 document.getElementById('typeSendBtn').onclick = () => {
-  const val = typeInput.value.trim();
-  if(!val) return;
-  typeInput.value = '';
-  processInput(val);
+  const v = document.getElementById('typeInput').value.trim();
+  if(!v) return;
+  document.getElementById('typeInput').value = '';
+  processInput(v);
 };
-typeInput.addEventListener('keydown', (e) => {
+document.getElementById('typeInput').addEventListener('keydown', e => {
   if(e.key === 'Enter') document.getElementById('typeSendBtn').click();
 });
 
-function timeToMinutes(str){
-  const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i);
-  if(!m) return null;
-  let h = parseInt(m[1], 10) % 12;
-  if(/pm/i.test(m[3])) h += 12;
-  return h * 60 + parseInt(m[2], 10);
-}
-
-function feedSummary(e){
-  const parts = [];
-  if(e.left_breast) parts.push(e.left_breast + 'm L');
-  if(e.right_breast) parts.push(e.right_breast + 'm R');
-  if(e.formula) parts.push(e.formula + 'ml formula');
-  if(e.breast_milk) parts.push(e.breast_milk + 'ml milk');
-  if(e.pump_output) parts.push(e.pump_output + 'ml pumped');
-  return parts.length ? parts.join(', ') : '<span class="diaper-dash">—</span>';
-}
-
-function diaperSummary(e){
-  const pills = [];
-  if(e.pee && e.pee !== 'None') pills.push('<span class="diaper-pill pee">' + e.pee + ' wet</span>');
-  if(e.poop && e.poop !== 'None') pills.push('<span class="diaper-pill poop">' + e.poop + (e.poop_color ? ' · ' + e.poop_color : '') + '</span>');
-  return pills.length ? pills.join('') : '<span class="diaper-dash">—</span>';
-}
-
-function renderToday(entries){
-  const statsRow = document.getElementById('statsRow');
-  const tableWrap = document.getElementById('tableWrap');
-  const count = entries.length;
-
-  let lastFedLabel = '—';
-  if(count > 0){
-    const nowMin = timeToMinutes(pacificNowParts().time);
-    const lastMin = timeToMinutes(entries[0].time);
-    if(nowMin !== null && lastMin !== null){
-      let diff = nowMin - lastMin;
-      if(diff < 0) diff += 24 * 60;
-      if(diff < 1) lastFedLabel = 'just now';
-      else if(diff < 60) lastFedLabel = diff + 'm ago';
-      else lastFedLabel = Math.floor(diff / 60) + 'h ' + (diff % 60) + 'm ago';
-    }
-  }
-
-  statsRow.innerHTML =
-    '<div class="stat-pill"><span class="num">' + count + '</span><span class="lbl">Feeds today</span></div>' +
-    '<div class="stat-pill"><span class="num">' + lastFedLabel + '</span><span class="lbl">Last fed</span></div>';
-
-  if(count === 0){
-    tableWrap.innerHTML = '<div class="empty-state">No feeds logged yet today — you\'ve got this 💛</div>';
-    return;
-  }
-
-  const rows = entries.map(e =>
-    '<tr><td class="time-cell">' + e.time + '</td>' +
-    '<td>' + feedSummary(e) + '</td>' +
-    '<td>' + diaperSummary(e) + '</td></tr>'
-  ).join('');
-
-  tableWrap.innerHTML =
-    '<table class="feed-table"><thead><tr><th>Time</th><th>Fed</th><th>Diaper</th></tr></thead>' +
-    '<tbody>' + rows + '</tbody></table>';
-}
-
-async function loadTodayFeeds(){
-  if(!webhookUrl || !secret){
-    document.getElementById('tableWrap').innerHTML = '<div class="empty-state">Finish setup above to see today\'s feeds here.</div>';
-    return;
-  }
-  try{
-    const resp = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({ secret, action: 'today' })
-    });
-    const data = await resp.json();
-    if(data.status !== 'success') throw new Error(data.message);
-    renderToday(data.entries || []);
-  }catch(e){
-    document.getElementById('tableWrap').innerHTML = '<div class="empty-state">Couldn\'t load today\'s feeds right now.</div>';
-  }
-}
-
-document.getElementById('refreshTodayBtn').onclick = (evt) => {
-  evt.currentTarget.classList.add('spinning');
-  loadTodayFeeds().finally(() => evt.currentTarget.classList.remove('spinning'));
-};
-
-document.getElementById('settingsLink').onclick = (evt) => {
-  evt.preventDefault();
-  document.getElementById('webhookInput').value = webhookUrl || '';
-  document.getElementById('secretInput').value = secret || '';
-  setupCard.style.display = 'block';
-  setupCard.scrollIntoView({behavior:'smooth', block:'start'});
-};
-
-renderChips();
+/* ============ Boot ============ */
+buildSegs();
 loadSetup();
-loadTodayFeeds();
-addMsg('system', 'Tap the mic and tell me about the feed.');
+loadEntries();
+greet();
+setInterval(renderPulse, 60000); // keep the elapsed ring honest
 </script>
 </body>
 </html>
