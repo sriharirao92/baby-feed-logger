@@ -8,8 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root, [data-theme="light"]{
     --bg:        #FBF4F2;
+    --bg-deep:   #F5E9E7;
     --card:      #FFFFFF;
     --ink:       #3D2B3A;
     --ink-soft:  #8A7182;
@@ -22,12 +23,36 @@
     --mint:      #8FBFA9;
     --line:      #F1E1E4;
     --line-soft: #F8EEEF;
+    --seg-on-tx: #FFFFFF;
+    --shadow:    0 1px 2px rgba(61,43,58,.04), 0 10px 30px rgba(61,43,58,.05);
+    --glow:      radial-gradient(circle at 50% 42%, rgba(227,154,174,.13), transparent 62%);
   }
+  [data-theme="dark"]{
+    --bg:        #201820;
+    --bg-deep:   #191219;
+    --card:      #2B222A;
+    --ink:       #F3E8ED;
+    --ink-soft:  #B39FAD;
+    --ink-faint: #7C6976;
+    --blush:     #E9A3B6;
+    --blush-deep:#F0B8C7;
+    --plum:      #A98CBE;
+    --plum-deep: #B79ECA;
+    --gold:      #E8BE86;
+    --mint:      #9BCCB6;
+    --line:      #3C2F3A;
+    --line-soft: #322730;
+    --seg-on-tx: #201820;
+    --shadow:    0 1px 2px rgba(0,0,0,.2), 0 10px 30px rgba(0,0,0,.25);
+    --glow:      radial-gradient(circle at 50% 42%, rgba(233,163,182,.11), transparent 62%);
+  }
+  html{ background: var(--bg); }
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
   html,body{ margin:0; padding:0; }
   body{
     background: var(--bg);
     color: var(--ink);
+    transition: background .35s ease, color .35s ease;
     font-family:'Inter', system-ui, sans-serif;
     min-height:100vh;
     display:flex; justify-content:center;
@@ -56,11 +81,16 @@
     border-radius:22px;
     padding:20px;
     margin-bottom:14px;
-    box-shadow: 0 1px 2px rgba(61,43,58,.04), 0 10px 30px rgba(61,43,58,.05);
+    box-shadow: var(--shadow);
+    transition: background .35s ease, border-color .35s ease;
   }
 
   /* ---------- Signature: the elapsed ring ---------- */
-  .pulse-card{ text-align:center; padding: 24px 20px 20px; }
+  .pulse-card{ text-align:center; padding: 24px 20px 20px; position:relative; overflow:hidden; }
+  .pulse-card::before{
+    content:''; position:absolute; inset:0; background:var(--glow); pointer-events:none;
+  }
+  .pulse-card > *{ position:relative; }
   .ring-wrap{ position:relative; width:180px; height:180px; margin: 0 auto 4px; }
   .ring-wrap svg{ transform: rotate(-90deg); display:block; }
   .ring-center{
@@ -77,6 +107,12 @@
     color:var(--ink-faint); font-weight:600; margin-top:4px;
   }
   .ring-track{ stroke: var(--line-soft); }
+  .ring-ticks line{ stroke: var(--line); stroke-width:2; stroke-linecap:round; }
+  .ring-wrap.overdue .ring-fill{ animation: breathe 3.2s ease-in-out infinite; }
+  @keyframes breathe{ 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+  .elapsed-sub{
+    font-size:11.5px; color:var(--ink-faint); margin-top:7px; line-height:1.35; max-width:120px;
+  }
   .ring-fill{ transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1), stroke .9s ease; }
 
   .daily-strip{
@@ -88,6 +124,7 @@
   .daily-stat .n{
     font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:19px; display:block; line-height:1.15;
   }
+  .daily-stat.empty-stat .n, .daily-stat.empty-stat .l{ color:var(--ink-faint); opacity:.55; }
   .daily-stat .l{
     font-size:9.5px; text-transform:uppercase; letter-spacing:.07em;
     color:var(--ink-faint); font-weight:600; margin-top:3px; display:block;
@@ -111,11 +148,24 @@
 
   /* ---------- Timeline ---------- */
   .entry{
-    display:flex; gap:13px; padding:13px 10px 13px 4px; margin: 0 -6px;
+    display:flex; gap:11px; padding:14px 10px 14px 4px; margin: 0 -6px;
     border-radius:14px; cursor:pointer; position:relative;
   }
   .entry:active{ background:var(--line-soft); }
-  .entry + .entry{ border-top:1px solid var(--line-soft); }
+
+  /* A continuous rail turns a list of rows into a readable timeline */
+  .entry-rail{ position:relative; width:9px; flex-shrink:0; display:flex; justify-content:center; }
+  .entry-rail::before{
+    content:''; position:absolute; top:0; bottom:-14px; width:2px;
+    background:var(--line-soft); border-radius:2px;
+  }
+  .entry:last-child .entry-rail::before{ bottom:auto; height:9px; }
+  .entry-rail .dot{
+    position:relative; width:9px; height:9px; border-radius:50%;
+    background:var(--blush); margin-top:5px;
+    box-shadow: 0 0 0 3px var(--card);
+  }
+  .entry:first-child .entry-rail .dot{ background:var(--plum); }
   .entry-time{
     font-variant-numeric: tabular-nums;
     font-size:12.5px; font-weight:600; color:var(--ink-soft);
@@ -129,10 +179,10 @@
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
     padding:1.5px 6px; border-radius:5px; margin-left:1px;
   }
-  .lvl.Light { background:#FBF0E0; color:#A07A38; }
-  .lvl.Medium{ background:#F6E7EE; color:var(--blush-deep); }
-  .lvl.Heavy { background:#EDE4F3; color:var(--plum-deep); }
-  .edit-hint{ color:var(--ink-faint); font-size:15px; align-self:center; flex-shrink:0; }
+  .lvl.Light { background:color-mix(in srgb, var(--gold) 18%, var(--card)); color:var(--gold); }
+  .lvl.Medium{ background:color-mix(in srgb, var(--blush) 18%, var(--card)); color:var(--blush-deep); }
+  .lvl.Heavy { background:color-mix(in srgb, var(--plum) 20%, var(--card)); color:var(--plum-deep); }
+  .edit-hint{ color:var(--ink-faint); font-size:15px; align-self:flex-start; padding-top:1px; flex-shrink:0; }
 
   .empty{
     text-align:center; padding: 26px 16px 20px; color:var(--ink-soft);
@@ -157,7 +207,7 @@
     max-height:280px; overflow-y:auto; margin-bottom:15px; padding-right:2px;
   }
   .msg{ font-size:14px; line-height:1.48; padding:11px 14px; border-radius:16px; max-width:87%; }
-  .msg.user{ align-self:flex-end; background:var(--plum); color:#fff; border-bottom-right-radius:5px; }
+  .msg.user{ align-self:flex-end; background:var(--plum); color:var(--seg-on-tx); border-bottom-right-radius:5px; }
   .msg.bot{ align-self:flex-start; background:var(--bg); color:var(--ink); border-bottom-left-radius:5px; }
   .msg.system{ align-self:center; color:var(--ink-faint); font-size:12px; text-align:center; }
 
@@ -172,7 +222,8 @@
   .captured{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
   .cap{
     font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:100px;
-    background:#EEF6F2; color:#4E7D68; border:1px solid #DCEBE3;
+    background:color-mix(in srgb, var(--mint) 15%, var(--card));
+    color:var(--mint); border:1px solid color-mix(in srgb, var(--mint) 30%, var(--card));
     display:flex; align-items:center; gap:5px;
     animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
   }
@@ -183,7 +234,7 @@
     width:76px; height:76px; border-radius:50%; border:none;
     background: var(--blush); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 5px 20px rgba(227,154,174,.45);
+    box-shadow: 0 5px 22px color-mix(in srgb, var(--blush) 55%, transparent);
     transition: transform .14s ease, background .2s ease;
   }
   .mic-btn:active{ transform:scale(.93); }
@@ -204,7 +255,7 @@
   }
   .type-row input:focus{ border-color:var(--blush); }
   .type-row button{
-    border:none; background:var(--ink); color:#fff; border-radius:13px;
+    border:none; background:var(--ink); color:var(--bg); border-radius:13px;
     padding:0 17px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer;
   }
 
@@ -250,16 +301,19 @@
     border-radius:10px; padding:9px 2px; font-family:'Inter'; font-size:12px; font-weight:600;
     cursor:pointer;
   }
-  .seg button.on{ background:var(--plum); border-color:var(--plum); color:#fff; }
+  .seg button.on{ background:var(--plum); border-color:var(--plum); color:var(--seg-on-tx); }
 
   .sheet-actions{ display:flex; gap:9px; margin-top:6px; }
   .btn{
     border:none; border-radius:14px; padding:14px; font-family:'Inter';
     font-weight:700; font-size:14.5px; cursor:pointer;
   }
-  .btn.primary{ flex:1; background:var(--plum-deep); color:#fff; }
+  .btn.primary{ flex:1; background:var(--plum-deep); color:var(--seg-on-tx); }
   .btn.ghost{ background:var(--bg); color:var(--ink-soft); border:1px solid var(--line); }
-  .btn.danger{ background:#FBEDEF; color:#B4566A; border:1px solid #F3DCE0; }
+  .btn.danger{
+    background:color-mix(in srgb, var(--blush) 15%, var(--card));
+    color:var(--blush-deep); border:1px solid color-mix(in srgb, var(--blush) 30%, var(--card));
+  }
   .sheet-toast{ text-align:center; font-size:13px; font-weight:600; margin-top:11px; min-height:17px; }
 
   /* ---------- Setup ---------- */
@@ -286,12 +340,16 @@
       </svg>
       <h1>Little Log</h1>
     </div>
-    <button class="icon-btn" id="settingsBtn" aria-label="Settings">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-    </button>
+    <div style="display:flex; gap:7px;">
+      <button class="icon-btn" id="muteBtn" aria-label="Toggle voice"></button>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"></button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <div class="card" id="setupCard" style="display:none;">
@@ -311,6 +369,7 @@
     <div class="ring-wrap">
       <svg width="180" height="180" viewBox="0 0 180 180">
         <circle class="ring-track" cx="90" cy="90" r="78" fill="none" stroke-width="11"/>
+        <g class="ring-ticks" id="ringTicks"></g>
         <circle class="ring-fill" id="ringFill" cx="90" cy="90" r="78" fill="none"
                 stroke="var(--mint)" stroke-width="11" stroke-linecap="round"
                 stroke-dasharray="490" stroke-dashoffset="490"/>
@@ -318,6 +377,7 @@
       <div class="ring-center">
         <div class="elapsed" id="elapsedVal">—</div>
         <div class="elapsed-lbl" id="elapsedLbl">since last feed</div>
+        <div class="elapsed-sub" id="elapsedSub"></div>
       </div>
     </div>
     <div class="daily-strip" id="dailyStrip"></div>
@@ -466,14 +526,32 @@ function prettyDate(str){
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ============ Dashboard ============ */
+function drawTicks(){
+  // Ticks at each hour of the 3h window, so the ring reads as a dial not a progress bar.
+  const g = document.getElementById('ringTicks');
+  if(g.childNodes.length) return;
+  let out = '';
+  for(let h = 1; h <= 3; h++){
+    const a = (h/3) * 2 * Math.PI - Math.PI/2;
+    const r1 = 68, r2 = 73;
+    out += '<line x1="'+(90+r1*Math.cos(a)).toFixed(1)+'" y1="'+(90+r1*Math.sin(a)).toFixed(1)+
+           '" x2="'+(90+r2*Math.cos(a)).toFixed(1)+'" y2="'+(90+r2*Math.sin(a)).toFixed(1)+'"/>';
+  }
+  g.innerHTML = out;
+}
+
 function renderPulse(){
+  drawTicks();
   const isToday = viewDate === todayStr();
   const ring = document.getElementById('ringFill');
+  const wrap = document.querySelector('.ring-wrap');
   const val = document.getElementById('elapsedVal');
   const lbl = document.getElementById('elapsedLbl');
+  const sub = document.getElementById('elapsedSub');
   const CIRC = 490;
 
   const feeds = entries.filter(e => NUM_KEYS.some(k => e[k] > 0));
+  wrap.classList.remove('overdue');
 
   if(isToday && feeds.length){
     const last = toMinutes(feeds[0].time);
@@ -486,18 +564,24 @@ function renderPulse(){
       ? h + '<span class="unit">h</span> ' + m + '<span class="unit">m</span>'
       : m + '<span class="unit">m</span>';
     lbl.textContent = 'since last feed';
+    sub.textContent = 'last at ' + feeds[0].time;
 
-    // Ring fills over a 3h window — full ring is a nudge, not an alarm.
     const frac = Math.min(diff / 180, 1);
     ring.setAttribute('stroke-dashoffset', CIRC * (1 - frac));
-    ring.setAttribute('stroke', frac < 0.6 ? 'var(--mint)' : frac < 0.9 ? 'var(--gold)' : 'var(--blush)');
+    ring.setAttribute('stroke', frac < 0.6 ? 'var(--mint)' : frac < 1 ? 'var(--gold)' : 'var(--blush)');
+    if(frac >= 1){
+      wrap.classList.add('overdue');
+      sub.textContent = 'last at ' + feeds[0].time + ' · likely due';
+    }
   } else if(isToday){
     val.textContent = '—';
     lbl.textContent = 'nothing logged yet';
+    sub.textContent = 'tap the mic to start the day';
     ring.setAttribute('stroke-dashoffset', CIRC);
   } else {
-    val.innerHTML = feeds.length + '<span class="unit"></span>';
+    val.innerHTML = String(feeds.length);
     lbl.textContent = feeds.length === 1 ? 'feed that day' : 'feeds that day';
+    sub.textContent = '';
     ring.setAttribute('stroke-dashoffset', CIRC * (1 - Math.min(feeds.length/10, 1)));
     ring.setAttribute('stroke', 'var(--plum)');
   }
@@ -514,15 +598,20 @@ function renderPulse(){
     stat(pumped ? pumped+'ml' : '—', 'pumped') +
     stat(diapers || '—', 'diapers');
 }
-function stat(n,l){ return '<div class="daily-stat"><span class="n">'+n+'</span><span class="l">'+l+'</span></div>'; }
+function stat(n,l){
+  const blank = (n === '\u2014' || n === 0 || n === '0');
+  return '<div class="daily-stat'+(blank?' empty-stat':'')+'"><span class="n">'+n+
+         '</span><span class="l">'+l+'</span></div>';
+}
+function plural(n, one, many){ return n === 1 ? one : many; }
 
 /* ============ Timeline ============ */
 const GLYPH = {
-  nurse: '<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--blush)"><circle cx="12" cy="12" r="7"/></svg>',
+  nurse: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blush)" stroke-width="2.4" stroke-linecap="round"><path d="M12 20.5s-7.5-4.7-7.5-10a4.3 4.3 0 0 1 7.5-2.8 4.3 4.3 0 0 1 7.5 2.8c0 5.3-7.5 10-7.5 10z"/></svg>',
   bottle:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"><path d="M9 3h6M8 8h8v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2zM10 3v5M14 3v5"/></svg>',
   pump:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--plum)" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v6M7 9h10l-1.4 10.2A2 2 0 0 1 13.6 21h-3.2a2 2 0 0 1-2-1.8z"/></svg>',
-  wet:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="#7BA9C9"><path d="M12 2.5S5 10.2 5 14.6a7 7 0 0 0 14 0C19 10.2 12 2.5 12 2.5z"/></svg>',
-  dirty: '<svg width="13" height="13" viewBox="0 0 24 24" fill="#B08968"><ellipse cx="12" cy="16.5" rx="8.5" ry="4.5"/><ellipse cx="9.5" cy="11.5" rx="4.5" ry="3.5"/><ellipse cx="14.5" cy="9.5" rx="3.5" ry="3"/></svg>'
+  wet:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="var(--plum)"><path d="M12 2.5S5 10.2 5 14.6a7 7 0 0 0 14 0C19 10.2 12 2.5 12 2.5z"/></svg>',
+  dirty: '<svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gold)"><ellipse cx="12" cy="16.5" rx="8.5" ry="4.5"/><ellipse cx="9.5" cy="11.5" rx="4.5" ry="3.5"/><ellipse cx="14.5" cy="9.5" rx="3.5" ry="3"/></svg>'
 };
 
 function renderTimeline(){
@@ -612,9 +701,90 @@ function addMsg(role, text){
   log.appendChild(d);
   log.scrollTop = log.scrollHeight;
 }
-function speak(t){
-  try{ const u = new SpeechSynthesisUtterance(t); u.rate = 1.02; speechSynthesis.speak(u); }catch(e){}
+/* ============ Theme ============ */
+const SUN = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 1.8v2.4M12 19.8v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M1.8 12h2.4M19.8 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>';
+const MOON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8z"/></svg>';
+const SPK_ON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6.5 9H3v6h3.5L11 19z"/><path d="M15.6 8.4a5 5 0 0 1 0 7.2"/><path d="M18.4 5.6a9 9 0 0 1 0 12.8"/></svg>';
+const SPK_OFF = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6.5 9H3v6h3.5L11 19z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg>';
+
+let theme = 'light';
+function applyTheme(t){
+  theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').innerHTML = t === 'dark' ? SUN : MOON;
+  try{ localStorage.setItem('theme', t); }catch(e){}
 }
+function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('theme'); }catch(e){}
+  if(!saved){
+    saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  applyTheme(saved);
+}
+document.getElementById('themeBtn').onclick = () => applyTheme(theme === 'dark' ? 'light' : 'dark');
+
+/* ============ Voice ============
+ * Device default voices are usually the harshest ones available. We pick the
+ * gentlest installed voice instead, and slow the delivery slightly.
+ */
+let muted = false;
+let chosenVoice = null;
+
+const VOICE_PREFS = [
+  /google (uk|us) english female/i,
+  /google us english/i,
+  /microsoft (aria|jenny|sonia|libby).*natural/i,
+  /\b(samantha|karen|moira|fiona|tessa|serena)\b/i,
+  /microsoft (zira|hazel)/i,
+  /english.*female/i
+];
+
+function pickVoice(){
+  const voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+  if(!voices.length) return;
+  // "compact" voices on iOS are the tinny low-quality set — skip if better exist
+  const good = voices.filter(v => !/compact|eloquence/i.test(v.name));
+  const pool = good.length ? good : voices;
+  for(const rx of VOICE_PREFS){
+    const hit = pool.find(v => rx.test(v.name));
+    if(hit){ chosenVoice = hit; return; }
+  }
+  chosenVoice = pool.find(v => /en-US|en-GB/i.test(v.lang)) || pool[0];
+}
+if(window.speechSynthesis){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice; // voices load async on most browsers
+}
+
+function speak(text){
+  if(muted || !window.speechSynthesis) return;
+  try{
+    speechSynthesis.cancel(); // never let two replies overlap
+    const u = new SpeechSynthesisUtterance(text);
+    if(chosenVoice) u.voice = chosenVoice;
+    u.rate = 0.94;   // unhurried
+    u.pitch = 1.06;  // a touch warmer without going squeaky
+    u.volume = 0.85; // gentle at 3am
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function applyMute(m){
+  muted = m;
+  if(muted && window.speechSynthesis) speechSynthesis.cancel();
+  const btn = document.getElementById('muteBtn');
+  btn.innerHTML = muted ? SPK_OFF : SPK_ON;
+  btn.style.color = muted ? 'var(--ink-faint)' : 'var(--blush-deep)';
+  btn.setAttribute('aria-label', muted ? 'Turn voice on' : 'Turn voice off');
+  try{ localStorage.setItem('muted', muted ? '1' : '0'); }catch(e){}
+}
+function initMute(){
+  let saved = null;
+  try{ saved = localStorage.getItem('muted'); }catch(e){}
+  applyMute(saved === '1');
+}
+document.getElementById('muteBtn').onclick = () => applyMute(!muted);
 function renderCaptured(){
   const el = document.getElementById('captured');
   const parts = [];
@@ -900,6 +1070,8 @@ document.getElementById('typeInput').addEventListener('keydown', e => {
 });
 
 /* ============ Boot ============ */
+initTheme();
+initMute();
 buildSegs();
 loadSetup();
 loadEntries();
