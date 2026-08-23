@@ -296,64 +296,37 @@ document.getElementById('saveSetupBtn').onclick = () => {
   setupCard.style.display = 'none';
 };
 
-function buildSystemPrompt(){
-  const {date, time} = pacificNowParts();
-  return `You are a warm, brief baby-feed logging assistant. The parent will describe a feeding, pumping session, or diaper change in casual natural language, possibly across a few turns.
-
-Fields to fill (JSON keys): date (YYYY-MM-DD), time (h:mm AM/PM Pacific), left_breast (minutes, number), right_breast (minutes, number), formula (ml, number), breast_milk (ml, number), pump_output (ml, number), pee (None/Light/Medium/Heavy), poop (None/Light/Medium/Heavy), poop_color (short text), notes (short text).
-
-Current Pacific date/time if not otherwise specified: date=${date}, time=${time}.
-
-Data collected so far: ${JSON.stringify(collected)}
-
-Rules:
-- Merge new info from the parent's latest message into the data collected so far. Never erase previously collected fields unless the parent corrects them.
-- Default any unmentioned numeric field to 0, and unmentioned pee/poop to "None" ONLY when you are about to mark done=true. While still asking questions, leave fields absent if unknown rather than guessing.
-- If the parent's message covers feeding but never mentions diapers or notes, ask ONE short warm follow-up like "Got it — any diaper change or quick notes to add, or should I go ahead and save this?"
-- Do not interrogate field by field. Ask at most one short natural follow-up question at a time, and only if something important is genuinely missing.
-- If the parent says something like "that's it", "save it", "done", "nothing else" — treat as ready to save: fill remaining unmentioned numeric fields with 0 and pee/poop with "None", set done=true.
-- Keep "reply" short (1-2 sentences), warm, conversational, spoken out loud to a tired parent.
-
-Respond with ONLY valid JSON, no markdown fences, no extra text, in this exact shape:
-{"reply": "string to say out loud", "fields": { ...updated full set of fields you know so far... }, "done": true or false}`;
-}
-
-async function callClaude(userText){
+async function processInput(userText){
   addMsg('user', userText);
-  conversation.push({role:'user', content:userText});
   micStatus.textContent = 'Thinking...';
 
+  if(!webhookUrl || !secret){
+    setupCard.style.display = 'block';
+    micStatus.textContent = 'Tap the mic and tell me about the feed';
+    return;
+  }
+
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 500,
-        system: buildSystemPrompt(),
-        messages: conversation.map(m => ({role:m.role, content:m.content}))
-      })
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({ secret, action: 'parse', transcript: userText, collected })
     });
     const data = await resp.json();
-    const textBlock = (data.content || []).find(c => c.type === 'text');
-    let raw = textBlock ? textBlock.text : '{}';
-    raw = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(raw);
+    if(data.status !== 'success') throw new Error(data.message || 'parse failed');
 
-    collected = Object.assign({}, collected, parsed.fields || {});
+    collected = Object.assign({}, collected, data.fields || {});
     renderChips();
+    addMsg('bot', data.reply);
+    speak(data.reply);
 
-    addMsg('bot', parsed.reply);
-    conversation.push({role:'assistant', content: parsed.reply});
-    speak(parsed.reply);
-
-    if(parsed.done){
+    if(data.done){
       openReview();
     } else {
       micStatus.textContent = 'Tap the mic and tell me about the feed';
     }
   }catch(e){
-    addMsg('system', "Hmm, I didn't catch that clearly — try again?");
+    addMsg('system', "Couldn't reach the parser — check your connection, or say \"save it\" to review what's captured so far.");
     micStatus.textContent = 'Tap the mic and tell me about the feed';
   }
 }
@@ -421,7 +394,6 @@ document.getElementById('saveBtn').onclick = async () => {
 
 function resetSession(){
   collected = {};
-  conversation = [];
   logEl.innerHTML = '';
   reviewCard.style.display = 'none';
   newEntryBtn.style.display = 'none';
@@ -454,7 +426,7 @@ if(SpeechRecognition){
   };
   recognition.onresult = (e) => {
     const transcript = e.results[0][0].transcript;
-    callClaude(transcript);
+    processInput(transcript);
   };
 } else {
   micStatus.textContent = 'Voice not supported here — type below instead';
@@ -471,7 +443,7 @@ document.getElementById('typeSendBtn').onclick = () => {
   const val = typeInput.value.trim();
   if(!val) return;
   typeInput.value = '';
-  callClaude(val);
+  processInput(val);
 };
 typeInput.addEventListener('keydown', (e) => {
   if(e.key === 'Enter') document.getElementById('typeSendBtn').click();
