@@ -8,15 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #F1EEF5;
+    --bg: #FBF2F6;
     --card: #FFFFFF;
-    --ink: #362A40;
-    --ink-soft: #6E6178;
-    --rose: #C97B84;
-    --rose-deep: #A85F6B;
-    --sage: #8FA687;
-    --sage-deep: #6F8768;
-    --line: #E3DDEA;
+    --ink: #4A2E3D;
+    --ink-soft: #8B6B7A;
+    --rose: #E08CA6;
+    --rose-deep: #C96C87;
+    --sage: #B9A6D9;
+    --sage-deep: #9A82C4;
+    --line: #F3DEE8;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -40,6 +40,47 @@
     letter-spacing: -0.01em;
   }
   header p{ margin:0; color:var(--ink-soft); font-size:14px; }
+
+  .bow{ vertical-align:-5px; margin-right:7px; }
+
+  .today-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .today-title{ font-family:'Fraunces', serif; font-weight:600; font-size:17px; }
+  .refresh-btn{
+    background:none; border:none; color:var(--ink-soft); font-size:15px; cursor:pointer;
+    padding:4px 9px; border-radius:8px; line-height:1;
+  }
+  .refresh-btn:active{ background: var(--line); }
+  .refresh-btn.spinning{ animation: spin 0.6s linear; }
+  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  .stats-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .stat-pill{
+    flex:1; background:var(--bg); border:1px solid var(--line); border-radius:14px;
+    padding:10px 8px; text-align:center;
+  }
+  .stat-pill .num{
+    font-family:'Fraunces', serif; font-weight:700; font-size:18px; color:var(--rose-deep); display:block;
+  }
+  .stat-pill .lbl{ font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; }
+
+  .feed-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .feed-table th{
+    text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.03em;
+    color:var(--ink-soft); padding:0 6px 6px; font-weight:600;
+  }
+  .feed-table td{ padding:9px 6px; border-top:1px solid var(--line); vertical-align:top; }
+  .feed-table tr:first-child td{ border-top:none; }
+  .feed-table td.time-cell{ color:var(--ink-soft); white-space:nowrap; font-size:12.5px; }
+
+  .diaper-pill{
+    display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:100px;
+    margin-right:3px; margin-bottom:3px; white-space:nowrap;
+  }
+  .diaper-pill.pee{ background:#FFF3D6; color:#9A7B23; }
+  .diaper-pill.poop{ background:#EDE3F7; color:#6B5296; }
+  .diaper-dash{ color: var(--ink-soft); }
+
+  .empty-state{ text-align:center; padding: 16px 10px 6px; color:var(--ink-soft); font-size:13.5px; line-height:1.5; }
 
   .card{
     background: var(--card);
@@ -156,10 +197,23 @@
 <body>
 <div class="app">
   <header>
-    <h1>Little Log</h1>
+    <h1><svg class="bow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 12.5 L3 6.5 Q0.5 5 1 8.5 Q1.3 11 3.5 12.5 Q1.3 14 1 16.5 Q0.5 20 3 18.5 Z" fill="var(--rose)"/>
+      <path d="M12 12.5 L21 6.5 Q23.5 5 23 8.5 Q22.7 11 20.5 12.5 Q22.7 14 23 16.5 Q23.5 20 21 18.5 Z" fill="var(--rose-deep)"/>
+      <circle cx="12" cy="12.5" r="2.6" fill="var(--rose-deep)"/>
+    </svg>Little Log</h1>
     <p>Tap, talk, and it's on the sheet.</p>
     <a href="#" id="settingsLink" style="display:block; margin-top:6px; font-size:12.5px; color:var(--ink-soft); text-decoration:underline;">Setup / change webhook URL</a>
   </header>
+
+  <div class="card" id="todayCard">
+    <div class="today-header">
+      <div class="today-title">Today so far</div>
+      <button class="refresh-btn" id="refreshTodayBtn" aria-label="Refresh today's feeds">↻ Refresh</button>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div id="tableWrap"><div class="empty-state">Loading today's feeds…</div></div>
+  </div>
 
   <div class="card" id="setupCard" style="display:none;">
     <div class="setup">
@@ -295,6 +349,7 @@ document.getElementById('saveSetupBtn').onclick = () => {
   }catch(e){}
   webhookUrl = w; secret = s;
   setupCard.style.display = 'none';
+  loadTodayFeeds();
 };
 
 async function processInput(userText){
@@ -387,6 +442,7 @@ document.getElementById('saveBtn').onclick = async () => {
     toast.textContent = 'Saved to the sheet 🌿';
     toast.style.color = 'var(--sage-deep)';
     speak("Saved. Nice work.");
+    loadTodayFeeds();
     setTimeout(resetSession, 1400);
   }catch(e){
     toast.textContent = "Couldn't reach the sheet — check your setup.";
@@ -452,6 +508,93 @@ typeInput.addEventListener('keydown', (e) => {
   if(e.key === 'Enter') document.getElementById('typeSendBtn').click();
 });
 
+function timeToMinutes(str){
+  const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if(!m) return null;
+  let h = parseInt(m[1], 10) % 12;
+  if(/pm/i.test(m[3])) h += 12;
+  return h * 60 + parseInt(m[2], 10);
+}
+
+function feedSummary(e){
+  const parts = [];
+  if(e.left_breast) parts.push(e.left_breast + 'm L');
+  if(e.right_breast) parts.push(e.right_breast + 'm R');
+  if(e.formula) parts.push(e.formula + 'ml formula');
+  if(e.breast_milk) parts.push(e.breast_milk + 'ml milk');
+  if(e.pump_output) parts.push(e.pump_output + 'ml pumped');
+  return parts.length ? parts.join(', ') : '<span class="diaper-dash">—</span>';
+}
+
+function diaperSummary(e){
+  const pills = [];
+  if(e.pee && e.pee !== 'None') pills.push('<span class="diaper-pill pee">' + e.pee + ' wet</span>');
+  if(e.poop && e.poop !== 'None') pills.push('<span class="diaper-pill poop">' + e.poop + (e.poop_color ? ' · ' + e.poop_color : '') + '</span>');
+  return pills.length ? pills.join('') : '<span class="diaper-dash">—</span>';
+}
+
+function renderToday(entries){
+  const statsRow = document.getElementById('statsRow');
+  const tableWrap = document.getElementById('tableWrap');
+  const count = entries.length;
+
+  let lastFedLabel = '—';
+  if(count > 0){
+    const nowMin = timeToMinutes(pacificNowParts().time);
+    const lastMin = timeToMinutes(entries[0].time);
+    if(nowMin !== null && lastMin !== null){
+      let diff = nowMin - lastMin;
+      if(diff < 0) diff += 24 * 60;
+      if(diff < 1) lastFedLabel = 'just now';
+      else if(diff < 60) lastFedLabel = diff + 'm ago';
+      else lastFedLabel = Math.floor(diff / 60) + 'h ' + (diff % 60) + 'm ago';
+    }
+  }
+
+  statsRow.innerHTML =
+    '<div class="stat-pill"><span class="num">' + count + '</span><span class="lbl">Feeds today</span></div>' +
+    '<div class="stat-pill"><span class="num">' + lastFedLabel + '</span><span class="lbl">Last fed</span></div>';
+
+  if(count === 0){
+    tableWrap.innerHTML = '<div class="empty-state">No feeds logged yet today — you\'ve got this 💛</div>';
+    return;
+  }
+
+  const rows = entries.map(e =>
+    '<tr><td class="time-cell">' + e.time + '</td>' +
+    '<td>' + feedSummary(e) + '</td>' +
+    '<td>' + diaperSummary(e) + '</td></tr>'
+  ).join('');
+
+  tableWrap.innerHTML =
+    '<table class="feed-table"><thead><tr><th>Time</th><th>Fed</th><th>Diaper</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>';
+}
+
+async function loadTodayFeeds(){
+  if(!webhookUrl || !secret){
+    document.getElementById('tableWrap').innerHTML = '<div class="empty-state">Finish setup above to see today\'s feeds here.</div>';
+    return;
+  }
+  try{
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({ secret, action: 'today' })
+    });
+    const data = await resp.json();
+    if(data.status !== 'success') throw new Error(data.message);
+    renderToday(data.entries || []);
+  }catch(e){
+    document.getElementById('tableWrap').innerHTML = '<div class="empty-state">Couldn\'t load today\'s feeds right now.</div>';
+  }
+}
+
+document.getElementById('refreshTodayBtn').onclick = (evt) => {
+  evt.currentTarget.classList.add('spinning');
+  loadTodayFeeds().finally(() => evt.currentTarget.classList.remove('spinning'));
+};
+
 document.getElementById('settingsLink').onclick = (evt) => {
   evt.preventDefault();
   document.getElementById('webhookInput').value = webhookUrl || '';
@@ -462,6 +605,7 @@ document.getElementById('settingsLink').onclick = (evt) => {
 
 renderChips();
 loadSetup();
+loadTodayFeeds();
 addMsg('system', 'Tap the mic and tell me about the feed.');
 </script>
 </body>
