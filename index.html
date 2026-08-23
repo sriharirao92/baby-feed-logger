@@ -326,7 +326,7 @@ async function processInput(userText){
       micStatus.textContent = 'Tap the mic and tell me about the feed';
     }
   }catch(e){
-    addMsg('system', "Couldn't reach the parser — check your connection, or say \"save it\" to review what's captured so far.");
+    addMsg('system', "Parser error: " + (e.message || e) + " — check the Apps Script Executions log for details.");
     micStatus.textContent = 'Tap the mic and tell me about the feed';
   }
 }
