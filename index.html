@@ -141,6 +141,55 @@
     color:var(--ink-faint); font-weight:600; margin-top:3px; display:block;
   }
 
+  /* ---------- Trends ---------- */
+  #trendsView{ display:none; }
+  body.trends #homeView{ display:none; }
+  body.trends #trendsView{ display:block; }
+
+  .range-row{ display:flex; gap:6px; margin-bottom:16px; }
+  .range-row button{
+    flex:1; border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    border-radius:11px; padding:9px 4px; font-family:'Inter'; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .range-row button.on{ background:var(--plum); border-color:var(--plum); color:var(--seg-on-tx); }
+
+  .sec-title{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:16px; margin-bottom:3px;
+  }
+  .sec-note{ font-size:11.5px; color:var(--ink-faint); margin-bottom:14px; line-height:1.45; }
+
+  .metric-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .metric{
+    background:var(--bg); border:1px solid var(--line); border-radius:15px; padding:13px;
+  }
+  .metric .mv{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:23px; line-height:1.1;
+    display:block; font-variant-numeric:tabular-nums;
+  }
+  .metric .ml{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
+               color:var(--ink-faint); font-weight:700; margin-top:2px; display:block; }
+  .metric .md{ font-size:11px; color:var(--ink-soft); margin-top:5px; display:block; }
+  .metric svg{ display:block; margin-top:9px; width:100%; }
+
+  /* Rhythm grid */
+  .rhythm{ overflow-x:auto; }
+  .rhythm table{ border-collapse:separate; border-spacing:2px; width:100%; }
+  .rhythm td.lbl{
+    font-size:9.5px; color:var(--ink-faint); font-weight:600; white-space:nowrap;
+    padding-right:5px; text-align:right; width:1px;
+  }
+  .rhythm td.cell{ height:15px; border-radius:3px; background:var(--line-soft); position:relative; }
+  .rhythm .hrs{ display:flex; justify-content:space-between; margin-top:6px; padding-left:34px; }
+  .rhythm .hrs span{ font-size:9px; color:var(--ink-faint); font-weight:600; }
+  .legend{ display:flex; gap:14px; margin-top:12px; flex-wrap:wrap; }
+  .legend i{ display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .legend span{ font-size:11px; color:var(--ink-soft); }
+
+  .balance{ display:flex; height:34px; border-radius:11px; overflow:hidden; margin:10px 0 7px; }
+  .balance div{ display:flex; align-items:center; justify-content:center;
+                font-size:11.5px; font-weight:700; color:var(--seg-on-tx); }
+  .bal-note{ font-size:11.5px; color:var(--ink-soft); text-align:center; }
+
   /* ---------- Timers ---------- */
   .tools{ display:flex; gap:8px; }
   .tool{
@@ -292,6 +341,25 @@
     animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes popIn{ from{ opacity:0; transform:scale(.85);} to{ opacity:1; transform:scale(1);} }
+
+  .choice{ display:flex; gap:10px; margin-bottom:4px; }
+  .choice button{
+    flex:1; border:1px solid var(--line); background:var(--bg); border-radius:17px;
+    padding:20px 10px; cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:9px; font-family:'Inter'; font-size:13.5px; font-weight:700;
+    color:var(--ink); transition: border-color .22s ease, transform .16s ease;
+  }
+  .choice button:active{ transform:scale(.97); }
+  .choice button .sub{ font-size:11px; font-weight:500; color:var(--ink-soft); }
+  .choice button.voice{ border-color:color-mix(in srgb, var(--blush) 45%, var(--card)); }
+  .choice .ic{
+    width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .choice .ic.a{ background:var(--blush); }
+  .choice .ic.b{ background:color-mix(in srgb, var(--plum) 20%, var(--card)); }
+
+  .chat-body{ display:none; }
+  .chat-body.on{ display:block; }
 
   .steps{ display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:13px; }
   .step-dot{
@@ -553,6 +621,11 @@
       <h1>Little Log</h1>
     </div>
     <div style="display:flex; gap:7px;">
+      <button class="icon-btn" id="trendsBtn" aria-label="Trends">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 20h18M6 17V9M11 17V5M16 17v-6M21 17v-9"/>
+        </svg>
+      </button>
       <button class="icon-btn" id="muteBtn" aria-label="Toggle voice"></button>
       <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"></button>
       <button class="icon-btn" id="settingsBtn" aria-label="Settings">
@@ -564,6 +637,7 @@
     </div>
   </header>
 
+  <div id="homeView">
   <div class="card" id="setupCard" style="display:none;">
     <div class="setup-body">
       <div style="font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:var(--ink); margin-bottom:5px;">Connect your sheet</div>
@@ -635,6 +709,14 @@
     </div>
 
     <div class="timer-panel" id="pumpPanel">
+      <div class="side-toggle" id="pumpModes" style="margin-bottom:9px;">
+        <button data-pmode="Both">Both at once</button>
+        <button data-pmode="Each">One side at a time</button>
+      </div>
+      <div class="side-toggle" id="pumpSides">
+        <button data-pside="L">Left<span class="side-sub" id="psubL">0:00</span></button>
+        <button data-pside="R">Right<span class="side-sub" id="psubR">0:00</span></button>
+      </div>
       <div class="big-time" id="pumpTime">0:00</div>
       <div class="big-sub" id="pumpSub"></div>
       <div class="bar"><i id="pumpBar" style="width:0%"></i></div>
@@ -664,21 +746,6 @@
   </div>
 
   <div class="card">
-    <div class="date-nav">
-      <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
-      <label class="date-label">
-        <span id="dateLabel">Today</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round">
-          <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
-        </svg>
-        <input type="date" id="datePicker">
-      </label>
-      <button class="nav-arrow" id="nextDay" aria-label="Next day">›</button>
-    </div>
-    <div id="timeline"><div class="empty">Loading…</div></div>
-  </div>
-
-  <div class="card">
     <div class="mode-toggle" id="modeToggle">
       <button data-mode="log" class="on">Log a feed</button>
       <button data-mode="ask">Ask about data</button>
@@ -687,6 +754,29 @@
       <span></span>
       <div><button id="syncNowBtn">Sync now</button></div>
     </div>
+    <div class="choice" id="entryChoice">
+      <button class="voice" id="chooseVoice">
+        <span class="ic a">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+            <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z"/>
+            <path d="M19 11a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 006 6.93V20H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07A7 7 0 0019 11z"/>
+          </svg>
+        </span>
+        Talk it through
+        <span class="sub">I'll ask, you answer</span>
+      </button>
+      <button id="chooseForm">
+        <span class="ic b">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--plum)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+        </span>
+        Fill in a form
+        <span class="sub">Type it all at once</span>
+      </button>
+    </div>
+
+    <div class="chat-body" id="chatBody">
     <div class="steps" id="steps"></div>
     <div class="undo-bar" id="undoBar">
       <span>Saved to your sheet</span>
@@ -719,8 +809,67 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 6h16M4 12h16M4 18h10"/>
       </svg>
-      Fill in a form instead
+      Switch to the form instead
     </button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="date-nav">
+      <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
+      <label class="date-label">
+        <span id="dateLabel">Today</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round">
+          <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
+        </svg>
+        <input type="date" id="datePicker">
+      </label>
+      <button class="nav-arrow" id="nextDay" aria-label="Next day">›</button>
+    </div>
+    <div id="timeline"><div class="empty">Loading…</div></div>
+  </div>
+
+  </div>
+
+  <div id="trendsView">
+    <div class="card">
+      <div class="range-row" id="rangeRow">
+        <button data-d="7">7 days</button>
+        <button data-d="14" class="on">14 days</button>
+        <button data-d="30">30 days</button>
+      </div>
+      <div class="sec-title">Her rhythm</div>
+      <div class="sec-note">Each row is a day, each square an hour. Blush marks feeds, plum marks sleep &mdash; a routine shows up as vertical stripes.</div>
+      <div class="rhythm" id="rhythm"></div>
+      <div class="legend">
+        <span><i style="background:var(--blush)"></i>Feed</span>
+        <span><i style="background:var(--plum)"></i>Asleep</span>
+        <span><i style="background:var(--line-soft)"></i>Nothing logged</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Day by day</div>
+      <div class="sec-note">Your own numbers over the window &mdash; no targets, no comparisons.</div>
+      <div class="metric-grid" id="metricGrid"></div>
+    </div>
+
+    <div class="card" id="sleepCard">
+      <div class="sec-title">Sleep</div>
+      <div class="sec-note">The longest unbroken stretch is usually the one worth watching.</div>
+      <div class="metric-grid" id="sleepGrid"></div>
+    </div>
+
+    <div class="card" id="balanceCard">
+      <div class="sec-title">Side balance</div>
+      <div class="sec-note">Nursing and pumping minutes split between sides.</div>
+      <div id="balanceBody"></div>
+    </div>
+
+    <div class="card" id="pumpCard">
+      <div class="sec-title">Pumping</div>
+      <div class="sec-note">Output and time spent, per day and per session.</div>
+      <div class="metric-grid" id="pumpGrid"></div>
+    </div>
   </div>
 </div>
 
@@ -785,7 +934,13 @@
       <div class="grid">
         <div class="field"><label>Formula (ml)</label><input type="number" min="0" data-k="formula"></div>
         <div class="field"><label>Breast milk (ml)</label><input type="number" min="0" data-k="breast_milk"></div>
-        <div class="field wide"><label>Pumped (ml)</label><input type="number" min="0" data-k="pump_output"></div>
+        <div class="field"><label>Pumped (ml)</label><input type="number" min="0" data-k="pump_output"></div>
+        <div class="field"><label>Pumped left (min)</label><input type="number" min="0" data-k="pump_left"></div>
+        <div class="field"><label>Pumped right (min)</label><input type="number" min="0" data-k="pump_right"></div>
+        <div class="field wide">
+          <label>Pumping mode</label>
+          <div class="seg" data-seg="pump_mode"></div>
+        </div>
       </div>
     </div>
 
@@ -821,7 +976,8 @@
 const LEVELS = ['None','Light','Medium','Heavy'];
 const NUM_KEYS = ['left_breast','right_breast','formula','breast_milk','pump_output'];
 const FIELD_ORDER = ['date','time','left_breast','right_breast','formula','breast_milk',
-                     'pump_output','pee','poop','poop_color','notes'];
+                     'pump_output','pee','poop','poop_color','notes',
+                     'sleep_start','sleep_end','pump_left','pump_right','pump_mode'];
 const CAP_LABELS = {
   left_breast:'Left side', right_breast:'Right side', formula:'Formula',
   breast_milk:'Breast milk', pump_output:'Pumped', pee:'Wet diaper',
@@ -836,7 +992,7 @@ let handsFree = false;
 let lastSavedRow = null;
 let wakeLock = null;
 
-const STEP_KEYS = ['when','nursing','bottle','diaper','poop_color','notes'];
+const STEP_KEYS = ['when','pump_amount','nursing','bottle','diaper','poop_color','notes'];
 
 function renderSteps(section){
   const el = document.getElementById('steps');
@@ -1019,7 +1175,19 @@ function renderTimeline(){
     if(e.breast_milk) bottle.push(e.breast_milk+' ml breast milk');
     if(bottle.length) lines.push(line(GLYPH.bottle, bottle.join(' · ')));
 
-    if(e.pump_output) lines.push(line(GLYPH.pump, e.pump_output+' ml pumped'));
+    if(e.pump_output || e.pump_left || e.pump_right){
+      const bits = [];
+      if(e.pump_output) bits.push(e.pump_output+' ml pumped');
+      if(e.pump_mode === 'Both' && (e.pump_left || e.pump_right)){
+        bits.push('over ' + Math.max(e.pump_left||0, e.pump_right||0) + ' min (both)');
+      } else if(e.pump_left || e.pump_right){
+        const sides = [];
+        if(e.pump_left) sides.push(e.pump_left+' min left');
+        if(e.pump_right) sides.push(e.pump_right+' min right');
+        bits.push('\u2014 ' + sides.join(', '));
+      }
+      lines.push(line(GLYPH.pump, bits.join(' ')));
+    }
 
     if(e.sleep_start && e.sleep_end){
       const a = toMinutes(e.sleep_start), b = toMinutes(e.sleep_end);
@@ -1195,6 +1363,11 @@ function renderCaptured(){
   if(collected.pee && collected.pee !== 'None') parts.push('Wet · '+collected.pee);
   if(collected.poop && collected.poop !== 'None') parts.push('Dirty · '+collected.poop);
   if(collected.poop_color) parts.push(collected.poop_color);
+  if(collected.pump_left || collected.pump_right){
+    parts.push(collected.pump_mode === 'Both'
+      ? 'Pumped ' + (collected.pump_left || collected.pump_right) + ' min (both)'
+      : 'Pumped ' + (collected.pump_left||0) + 'L/' + (collected.pump_right||0) + 'R min');
+  }
   if(collected.notes) parts.push('Note added');
   el.innerHTML = parts.map(p => '<span class="cap">✓ '+esc(p)+'</span>').join('');
 }
@@ -1209,9 +1382,9 @@ const ASK_STARTERS = [
   'How many feeds today?',
   'How long between feeds lately?',
   'When did she last poop?',
-  'Is today different from usual?',
+  'How much did she sleep yesterday?',
   'How much have I pumped this week?',
-  'How much did she sleep yesterday?'
+  'How long am I pumping per session?'
 ];
 
 function currentStarters(){ return mode === 'log' ? STARTERS : ASK_STARTERS; }
@@ -1244,9 +1417,11 @@ document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
       .forEach(x => x.classList.toggle('on', x.dataset.mode === mode));
     collected = {}; awaitingConfirmation = false; history = [];
     renderCaptured();
+    renderSteps(null);
     document.getElementById('log').innerHTML = '';
     document.getElementById('typeInput').placeholder = mode === 'log' ? 'or type it here' : 'or type your question';
-    greet();
+    if(mode === 'log'){ showChoice(); }
+    else { startChat(); greet(); }
   };
 });
 
@@ -1337,17 +1512,245 @@ document.getElementById('editSavedBtn').onclick = () => {
   if(hit) openSheet(hit);
 };
 
+/* The chat stays hidden until the parent picks voice, so neither path is the
+   "default" they have to opt out of. */
+function showChoice(){
+  document.getElementById('entryChoice').style.display = mode === 'log' ? 'flex' : 'none';
+  document.getElementById('chatBody').classList.toggle('on', mode !== 'log');
+}
+function startChat(){
+  document.getElementById('entryChoice').style.display = 'none';
+  document.getElementById('chatBody').classList.add('on');
+}
+
+document.getElementById('chooseVoice').onclick = () => {
+  startChat();
+  greet();
+  if(handsFree) setTimeout(startListening, 400);
+};
+document.getElementById('chooseForm').onclick = () => {
+  collected = {}; awaitingConfirmation = false; history = [];
+  renderCaptured();
+  openSheet(null);
+};
+
+function greetPump(elapsedMin){
+  const q = 'Nice work \u2014 ' + elapsedMin + ' minutes of pumping logged. How much did you get?';
+  addMsg('bot', q);
+  history = [{role:'assistant', content:q}];
+  renderSteps('pump_amount');
+  speak(q, handsFree ? startListening : null);
+  if(handsFree && muted) setTimeout(startListening, 350);
+}
+
 function resetChat(){
   collected = {}; awaitingConfirmation = false; history = [];
   renderSteps(null);
   document.getElementById('log').innerHTML = '';
   renderCaptured();
-  greet();
+  showChoice();
 }
 
 /* ============ Editor sheet ============ */
 
 
+
+
+/* ============ Trends ============ */
+let trendDays = 14;
+let trendData = null;
+
+function spark(values, color){
+  if(!values.length) return '';
+  const W = 130, H = 30, max = Math.max(1, ...values);
+  const step = values.length > 1 ? W / (values.length - 1) : W;
+  const pts = values.map((v,i) => [i*step, H - (v/max)*(H-3) - 1.5]);
+  const line = pts.map((p,i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = line + ' L' + W + ' ' + H + ' L0 ' + H + ' Z';
+  const last = pts[pts.length-1];
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" height="30">' +
+    '<path d="'+area+'" fill="'+color+'" opacity=".14"/>' +
+    '<path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+    '<circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="2.6" fill="'+color+'"/></svg>';
+}
+
+function avg(a){ return a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0; }
+function fmtMin(m){
+  m = Math.round(m);
+  return m >= 60 ? Math.floor(m/60)+'h '+(m%60)+'m' : m+'m';
+}
+function hourLabel(h){
+  const s = h % 12 === 0 ? 12 : h % 12;
+  return s + (h < 12 ? 'am' : 'pm');
+}
+
+function metric(value, label, detail, values, color){
+  return '<div class="metric"><span class="mv">'+value+'</span><span class="ml">'+label+'</span>' +
+    (detail ? '<span class="md">'+detail+'</span>' : '') +
+    (values ? spark(values, color) : '') + '</div>';
+}
+
+function renderRhythm(d){
+  const rows = d.days.map((day, i) => {
+    const cells = [];
+    for(let h = 0; h < 24; h++){
+      const fed = d.feed_grid[i][h] > 0;
+      const slp = d.sleep_grid[i][h];
+      let bg = 'var(--line-soft)', title = '';
+      if(slp > 0){
+        // opacity scales with how much of the hour was spent asleep
+        const frac = Math.min(1, slp / 60);
+        bg = 'color-mix(in srgb, var(--plum) ' + Math.round(25 + frac*65) + '%, var(--card))';
+        title = Math.round(slp) + ' min asleep';
+      }
+      if(fed){
+        bg = 'var(--blush)';
+        title = d.feed_grid[i][h] + (d.feed_grid[i][h] > 1 ? ' feeds' : ' feed') +
+                (slp > 0 ? ' \u00b7 ' + Math.round(slp) + ' min asleep' : '');
+      }
+      cells.push('<td class="cell" style="background:'+bg+'" title="'+hourLabel(h)+
+                 (title ? ' \u2014 '+title : '')+'"></td>');
+    }
+    const lbl = day.date === d.today ? 'Today'
+              : new Date(day.date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',day:'numeric'});
+    return '<tr><td class="lbl">'+lbl+'</td>'+cells.join('')+'</tr>';
+  }).join('');
+
+  document.getElementById('rhythm').innerHTML =
+    '<table>'+rows+'</table>' +
+    '<div class="hrs"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>';
+}
+
+function renderTrends(d){
+  trendData = d;
+  renderRhythm(d);
+
+  const D = d.days;
+  const feeds   = D.map(x => x.feeds);
+  const intake  = D.map(x => x.intake_ml);
+  const nursing = D.map(x => x.nursing_min);
+  const wet     = D.map(x => x.wet);
+  const dirty   = D.map(x => x.dirty);
+  const sleep   = D.map(x => x.sleep_min);
+  const longest = D.map(x => x.longest_sleep_min);
+  const night   = D.map(x => x.night_sleep_min);
+  const pumped  = D.map(x => x.pumped_ml);
+  const pumpMin = D.map(x => x.pump_min);
+
+  const today = D[D.length-1] || {};
+  const prior = D.slice(0, -1);
+  const pAvg = f => avg(prior.map(f));
+
+  document.getElementById('metricGrid').innerHTML =
+    metric(today.feeds || 0, 'feeds today',
+           prior.length ? 'usually ' + pAvg(x=>x.feeds).toFixed(1) : '',
+           feeds, 'var(--blush)') +
+    metric(d.avg_gap_min ? fmtMin(d.avg_gap_min) : '\u2014', 'typical gap',
+           d.busiest_hour !== null ? 'busiest around ' + hourLabel(d.busiest_hour) : '',
+           null) +
+    metric((today.intake_ml || 0) + ' ml', 'bottle today',
+           prior.length ? 'usually ' + Math.round(pAvg(x=>x.intake_ml)) + ' ml' : '',
+           intake, 'var(--gold)') +
+    metric(fmtMin(today.nursing_min || 0), 'nursed today',
+           prior.length ? 'usually ' + fmtMin(pAvg(x=>x.nursing_min)) : '',
+           nursing, 'var(--blush)') +
+    metric(today.wet || 0, 'wet nappies',
+           prior.length ? 'usually ' + pAvg(x=>x.wet).toFixed(1) : '',
+           wet, 'var(--plum)') +
+    metric(d.days_since_poop === null ? '\u2014'
+             : d.days_since_poop === 0 ? 'Today' : d.days_since_poop + 'd ago',
+           'last dirty nappy',
+           prior.length ? 'usually ' + pAvg(x=>x.dirty).toFixed(1) + '/day' : '',
+           dirty, 'var(--gold)');
+
+  const anySleep = sleep.some(v => v > 0);
+  document.getElementById('sleepCard').style.display = anySleep ? 'block' : 'none';
+  if(anySleep){
+    document.getElementById('sleepGrid').innerHTML =
+      metric(fmtMin(today.sleep_min || 0), 'slept today',
+             prior.length ? 'usually ' + fmtMin(pAvg(x=>x.sleep_min)) : '',
+             sleep, 'var(--plum)') +
+      metric(fmtMin(Math.max(...longest)), 'longest stretch',
+             'best in this window', longest, 'var(--mint)') +
+      metric(fmtMin(today.night_sleep_min || 0), 'night sleep',
+             '10pm \u2013 6am', night, 'var(--plum)') +
+      metric(fmtMin(avg(sleep)), 'daily average',
+             'across ' + D.length + ' days', null);
+  }
+
+  // Side balance
+  const sl = d.side_totals.left_min, sr = d.side_totals.right_min;
+  const pl = d.pump_side_totals.left_min, pr = d.pump_side_totals.right_min;
+  const bal = (L, R, label) => {
+    const tot = L + R;
+    if(!tot) return '';
+    const lp = Math.round((L/tot)*100);
+    return '<div style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:12px;">'+label+'</div>' +
+      '<div class="balance">' +
+      '<div style="width:'+lp+'%;background:var(--blush)">'+(lp>14?'L '+lp+'%':'')+'</div>' +
+      '<div style="width:'+(100-lp)+'%;background:var(--plum)">'+((100-lp)>14?'R '+(100-lp)+'%':'')+'</div></div>' +
+      '<div class="bal-note">'+fmtMin(L)+' left \u00b7 '+fmtMin(R)+' right</div>';
+  };
+  const balHtml = bal(sl, sr, 'Nursing') + bal(pl, pr, 'Pumping');
+  document.getElementById('balanceCard').style.display = balHtml ? 'block' : 'none';
+  document.getElementById('balanceBody').innerHTML = balHtml;
+
+  // Pumping
+  const anyPump = pumped.some(v=>v>0) || pumpMin.some(v=>v>0);
+  document.getElementById('pumpCard').style.display = anyPump ? 'block' : 'none';
+  if(anyPump){
+    const totMl = pumped.reduce((a,b)=>a+b,0);
+    const totMin = pumpMin.reduce((a,b)=>a+b,0);
+    document.getElementById('pumpGrid').innerHTML =
+      metric((today.pumped_ml || 0) + ' ml', 'pumped today',
+             prior.length ? 'usually ' + Math.round(pAvg(x=>x.pumped_ml)) + ' ml' : '',
+             pumped, 'var(--mint)') +
+      metric(fmtMin(today.pump_min || 0), 'time pumping today',
+             prior.length ? 'usually ' + fmtMin(pAvg(x=>x.pump_min)) : '',
+             pumpMin, 'var(--plum)') +
+      metric(totMin ? Math.round(totMl / (totMin/60)) + ' ml' : '\u2014', 'per hour pumping',
+             'across the window', null) +
+      metric(totMl + ' ml', 'total pumped',
+             'over ' + D.length + ' days', null);
+  }
+}
+
+async function loadTrends(){
+  if(!webhookUrl || !secret){ openSetup(); return; }
+  const r = document.getElementById('rhythm');
+  r.innerHTML = '<div class="empty">Working out the patterns\u2026</div>';
+  try{
+    const d = await api({action:'trends', days:trendDays});
+    if(d.status !== 'success') throw new Error(d.message);
+    if(!d.has_data){
+      r.innerHTML = '<div class="empty"><strong>Not enough logged yet</strong>A few days of entries and the patterns will show up here.</div>';
+      ['metricGrid','sleepGrid','pumpGrid','balanceBody'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.innerHTML = '';
+      });
+      return;
+    }
+    renderTrends(d);
+  }catch(e){
+    r.innerHTML = '<div class="empty">Couldn\u2019t load trends \u2014 ' + (e.message || e) + '</div>';
+  }
+}
+
+document.getElementById('trendsBtn').onclick = () => {
+  const on = !document.body.classList.contains('trends');
+  document.body.classList.toggle('trends', on);
+  document.getElementById('trendsBtn').style.color = on ? 'var(--blush-deep)' : 'var(--ink-soft)';
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(on) loadTrends();
+};
+document.getElementById('rangeRow').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    trendDays = +b.dataset.d;
+    document.getElementById('rangeRow').querySelectorAll('button')
+      .forEach(x => x.classList.toggle('on', x === b));
+    loadTrends();
+  };
+});
 
 /* ============ Offline queue ============
  * A save that fails at 3am must never just vanish. Failed writes are parked in
@@ -1413,7 +1816,8 @@ setInterval(flushQueue, 60000);
 const T_KEY = 'littlelog_timers';
 let T = {
   nurse: { side:'L', running:false, startedAt:null, acc:{L:0,R:0}, target:15, warned:{} },
-  pump:  { running:false, startedAt:null, acc:0, target:20, warned:{} },
+  pump:  { running:false, startedAt:null, mode:'Both', side:'L',
+           acc:{L:0,R:0,B:0}, target:20, warned:{} },
   sleep: { running:false, startedAt:null }
 };
 
@@ -1563,63 +1967,134 @@ function nurseFinish(){
   if(!collected.time) collected.time = nowTimeStr();
   renderCaptured();
   addMsg('system', 'Nursing timer: ' + L + ' min left, ' + R + ' min right');
-  processInput('She nursed ' + L + ' minutes on the left and ' + R + ' minutes on the right.');
+  startChat();
+  const q = 'Got it \u2014 ' + L + ' min left, ' + R + ' min right. Any bottle or pumping with this one?';
+  addMsg('bot', q);
+  history = [{role:'assistant', content:q}];
+  renderSteps('bottle');
+  speak(q, handsFree ? startListening : null);
+  if(handsFree && muted) setTimeout(startListening, 350);
 }
 
-/* ---------- Pump ---------- */
+/* ---------- Pump ----------
+ * Two modes, because they measure different things:
+ *   Both  - one clock running while both sides pump together
+ *   Each  - separate clocks per side, like the nursing timer
+ */
+function pumpBucket(){ return T.pump.mode === 'Both' ? 'B' : T.pump.side; }
+function pumpMs(bucket){
+  const p = T.pump;
+  const live = (p.running && pumpBucket() === bucket) ? liveMs(p) : 0;
+  return (p.acc[bucket] || 0) + live;
+}
+function pumpElapsedMs(){
+  // Both sides at once = elapsed once, not doubled.
+  return T.pump.mode === 'Both' ? pumpMs('B') : pumpMs('L') + pumpMs('R');
+}
+
 function renderPump(){
   const p = T.pump;
-  const cur = p.acc + liveMs(p);
+  const cur = pumpMs(pumpBucket());
   const tgtMs = p.target * 60000;
+
+  document.querySelectorAll('#pumpModes button').forEach(b =>
+    b.classList.toggle('on', b.dataset.pmode === p.mode));
+  document.getElementById('pumpSides').style.display = p.mode === 'Each' ? 'flex' : 'none';
+  document.querySelectorAll('#pumpSides button').forEach(b =>
+    b.classList.toggle('on', b.dataset.pside === p.side));
+  document.getElementById('psubL').textContent = fmtMS(pumpMs('L'));
+  document.getElementById('psubR').textContent = fmtMS(pumpMs('R'));
+
   document.getElementById('pumpTime').textContent = fmtMS(cur);
   document.getElementById('ptgtVal').textContent = p.target + ' min';
   document.getElementById('pumpToggle').textContent = p.running ? 'Pause' : (cur > 0 ? 'Resume' : 'Start');
-  document.getElementById('pumpDone').style.display = cur > 0 ? 'block' : 'none';
+  document.getElementById('pumpDone').style.display = pumpElapsedMs() > 0 ? 'block' : 'none';
 
   const pct = Math.min(100, (cur / tgtMs) * 100);
   const bar = document.getElementById('pumpBar');
   bar.style.width = pct + '%';
   bar.style.background = pct >= 100 ? 'var(--blush)' : pct >= 75 ? 'var(--gold)' : 'var(--mint)';
+
   const left = Math.max(0, tgtMs - cur);
+  const sideWord = p.mode === 'Both' ? '' : (p.side === 'L' ? ' on the left' : ' on the right');
+  const otherDone = p.mode === 'Each' && pumpMs(p.side === 'L' ? 'R' : 'L') >= tgtMs;
   document.getElementById('pumpSub').textContent =
     !p.running && cur === 0 ? 'Tap start when you begin' :
-    left > 0 ? fmtMS(left) + ' left' : 'Target reached \u2014 tap Done when you finish';
+    left > 0 ? fmtMS(left) + ' left' + sideWord :
+    (p.mode === 'Each' && !otherDone)
+      ? 'Time to switch to the ' + (p.side === 'L' ? 'right' : 'left')
+      : 'Target reached \u2014 tap Done when you finish';
 
-  if(p.running && cur >= tgtMs && !p.warned.done){
-    p.warned.done = true; saveTimers();
-    nudge('You\u2019ve hit your pumping target.');
+  const key = pumpBucket() + '-' + p.target;
+  if(p.running && left <= 60000 && left > 0 && !p.warned[key+'-1m']){
+    p.warned[key+'-1m'] = true; saveTimers();
+    nudge('One minute left' + (sideWord || ' on your pumping session') + '.');
+  }
+  if(p.running && cur >= tgtMs && !p.warned[key+'-done']){
+    p.warned[key+'-done'] = true; saveTimers();
+    if(p.mode === 'Each' && !otherDone){
+      nudge('Time to switch to the ' + (p.side === 'L' ? 'right' : 'left') + ' side.');
+    } else {
+      nudge('You\u2019ve hit your pumping target.');
+    }
   }
 
   const tool = document.getElementById('toolPump');
   tool.classList.toggle('live', p.running);
-  document.getElementById('toolPumpLbl').innerHTML = cur > 0
-    ? '<span class="tool-time">' + fmtMS(cur) + '</span>' : 'Pump';
+  document.getElementById('toolPumpLbl').innerHTML = pumpElapsedMs() > 0
+    ? '<span class="tool-time">' + fmtMS(pumpElapsedMs()) + '</span>' : 'Pump';
   tool.querySelector('.pip')?.remove();
   if(p.running) tool.insertAdjacentHTML('afterbegin', '<span class="pip"></span>');
 }
+
+function pumpSwitch(side){
+  const p = T.pump;
+  if(p.mode !== 'Each' || p.side === side) return;
+  if(p.running){ p.acc[p.side] += liveMs(p); p.startedAt = Date.now(); }
+  p.side = side; saveTimers(); renderPump();
+}
+function pumpSetMode(mode){
+  const p = T.pump;
+  if(p.mode === mode) return;
+  if(p.running){ p.acc[pumpBucket()] += liveMs(p); p.startedAt = Date.now(); }
+  p.mode = mode; p.warned = {}; saveTimers(); renderPump();
+}
 function pumpToggle(){
   const p = T.pump;
-  if(p.running){ p.acc += liveMs(p); p.running = false; p.startedAt = null; }
+  if(p.running){ p.acc[pumpBucket()] += liveMs(p); p.running = false; p.startedAt = null; }
   else { p.running = true; p.startedAt = Date.now(); holdScreen(true); }
   saveTimers(); renderPump();
 }
 function pumpReset(){
-  T.pump = { running:false, startedAt:null, acc:0, target:T.pump.target, warned:{} };
+  T.pump = { running:false, startedAt:null, mode:T.pump.mode, side:'L',
+             acc:{L:0,R:0,B:0}, target:T.pump.target, warned:{} };
   saveTimers(); renderPump();
 }
 function pumpFinish(){
   const p = T.pump;
-  if(p.running){ p.acc += liveMs(p); p.running = false; p.startedAt = null; }
-  const mins = Math.round(p.acc / 60000);
+  if(p.running){ p.acc[pumpBucket()] += liveMs(p); p.running = false; p.startedAt = null; }
+
+  const mode = p.mode;
+  const mins = b => Math.round(pumpMs(b) / 60000);
+  // "Both at once" writes the same elapsed figure to each side, with the mode
+  // recorded so totals aren't double-counted later.
+  const L = mode === 'Both' ? mins('B') : mins('L');
+  const R = mode === 'Both' ? mins('B') : mins('R');
+  const elapsed = Math.round(pumpElapsedMs() / 60000);
   pumpReset();
   openPanel(null);
+
   collected._when = true;
+  collected.pump_left = L;
+  collected.pump_right = R;
+  collected.pump_mode = mode;
   if(!collected.date) collected.date = todayStr();
   if(!collected.time) collected.time = nowTimeStr();
-  collected.notes = (collected.notes ? collected.notes + '; ' : '') + 'pumped ' + mins + ' min';
   renderCaptured();
-  addMsg('system', 'Pumped for ' + mins + ' min');
-  processInput('I pumped for ' + mins + ' minutes. How much did I get? I will tell you the amount.');
+
+  addMsg('system', 'Pumped \u00b7 ' + (mode === 'Both' ? elapsed + ' min both sides' : L + ' min left, ' + R + ' min right'));
+  startChat();
+  greetPump(elapsed);
 }
 
 /* ---------- Sleep ---------- */
@@ -1682,6 +2157,10 @@ function initTimers(){
   document.getElementById('tgtUp').onclick = () => { T.nurse.target = Math.min(45, T.nurse.target+1); T.nurse.warned={}; saveTimers(); renderNurse(); };
   document.getElementById('tgtDown').onclick = () => { T.nurse.target = Math.max(1, T.nurse.target-1); T.nurse.warned={}; saveTimers(); renderNurse(); };
 
+  document.querySelectorAll('#pumpModes button').forEach(b =>
+    b.onclick = () => pumpSetMode(b.dataset.pmode));
+  document.querySelectorAll('#pumpSides button').forEach(b =>
+    b.onclick = () => pumpSwitch(b.dataset.pside));
   document.getElementById('pumpToggle').onclick = pumpToggle;
   document.getElementById('pumpReset').onclick = pumpReset;
   document.getElementById('pumpDone').onclick = pumpFinish;
@@ -1859,9 +2338,11 @@ function initCalendar(){
 
 function initClock(){ initWheels(); initCalendar(); }
 
+const SEG_OPTS = { pump_mode: ['\u2014','Both','Each'] };
 function buildSegs(){
   document.querySelectorAll('.seg').forEach(seg => {
-    seg.innerHTML = LEVELS.map(l => '<button type="button" data-v="'+l+'">'+l+'</button>').join('');
+    const opts = SEG_OPTS[seg.dataset.seg] || LEVELS;
+    seg.innerHTML = opts.map(l => '<button type="button" data-v="'+l+'">'+l+'</button>').join('');
     seg.querySelectorAll('button').forEach(b => {
       b.onclick = () => {
         seg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
@@ -1874,9 +2355,18 @@ function setSeg(name, val){
   const seg = document.querySelector('.seg[data-seg="'+name+'"]');
   seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === (val || 'None')));
 }
+function setSegRaw(name, val){
+  const seg = document.querySelector('.seg[data-seg="'+name+'"]');
+  if(!seg) return;
+  seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === val));
+}
 function getSeg(name){
   const on = document.querySelector('.seg[data-seg="'+name+'"] button.on');
   return on ? on.dataset.v : 'None';
+}
+function getSegRaw(name){
+  const on = document.querySelector('.seg[data-seg="'+name+'"] button.on');
+  return on ? on.dataset.v : '';
 }
 
 function openSheet(existing){
@@ -1901,6 +2391,7 @@ function openSheet(existing){
   });
   setSeg('pee', src.pee);
   setSeg('poop', src.poop);
+  setSegRaw('pump_mode', src.pump_mode || '\u2014');
 
   parseIntoClock(src.time);
   syncTimeUI();
@@ -1925,6 +2416,8 @@ document.getElementById('saveEntryBtn').onclick = async () => {
   });
   payload.pee = getSeg('pee');
   payload.poop = getSeg('poop');
+  const pm = getSegRaw('pump_mode');
+  payload.pump_mode = (pm === '\u2014') ? '' : pm;
 
   const toast = document.getElementById('sheetToast');
   toast.textContent = 'Saving…'; toast.style.color = 'var(--ink-soft)';
@@ -2131,7 +2624,7 @@ buildSegs();
 initClock();
 loadSetup();
 loadEntries();
-greet();
+showChoice();
 setInterval(renderPulse, 60000); // keep the elapsed ring honest
 </script>
 </body>
