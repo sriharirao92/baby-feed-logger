@@ -678,11 +678,14 @@
       <div style="margin-top:16px; padding-top:15px; border-top:1px solid var(--line-soft);">
         <div style="font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:8px;">Spoken voice</div>
         <div class="voice-row" id="voiceRow">
-          <button type="button" data-v="tara">Tara</button>
-          <button type="button" data-v="leah">Leah</button>
-          <button type="button" data-v="jess">Jess</button>
-          <button type="button" data-v="mia">Mia</button>
-          <button type="button" data-v="zoe">Zoe</button>
+          <button type="button" data-v="autumn">Autumn</button>
+          <button type="button" data-v="diana">Diana</button>
+          <button type="button" data-v="hannah">Hannah</button>
+        </div>
+        <div class="voice-row" style="margin-top:5px;">
+          <button type="button" data-v="austin">Austin</button>
+          <button type="button" data-v="daniel">Daniel</button>
+          <button type="button" data-v="troy">Troy</button>
         </div>
         <button type="button" class="now-btn" id="tryVoiceBtn" style="margin-top:9px;">Hear this voice</button>
         <div class="engine-tag" id="engineTag">Voice engine: not tested yet</div>
@@ -1482,21 +1485,23 @@ function applyMute(m){
   btn.setAttribute('aria-label', muted ? 'Turn voice on' : 'Turn voice off');
   try{ localStorage.setItem('muted', muted ? '1' : '0'); }catch(e){}
 }
+const ORPHEUS_VOICES = ['autumn','diana','hannah','austin','daniel','troy'];
 function applyVoice(v){
+  if(ORPHEUS_VOICES.indexOf(v) === -1) v = 'autumn';  // clear out any old saved name
   ttsVoice = v;
   orpheusWorks = true;   // a new pick deserves a fresh attempt
   lastTtsError = null;
-  document.getElementById('voiceRow').querySelectorAll('button')
+  document.querySelectorAll('.voice-row button')
     .forEach(b => b.classList.toggle('on', b.dataset.v === v));
   try{ localStorage.setItem('tts_voice', v); }catch(e){}
 }
 function initVoice(){
   let saved = null;
   try{ saved = localStorage.getItem('tts_voice'); }catch(e){}
-  applyVoice(saved || 'tara');
+  applyVoice(saved || 'autumn');
   setEngineTag();
 }
-document.getElementById('voiceRow').querySelectorAll('button').forEach(b => {
+document.querySelectorAll('.voice-row button').forEach(b => {
   b.onclick = () => applyVoice(b.dataset.v);
 });
 document.getElementById('tryVoiceBtn').onclick = async () => {
