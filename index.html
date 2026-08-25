@@ -678,14 +678,7 @@
       <div style="margin-top:16px; padding-top:15px; border-top:1px solid var(--line-soft);">
         <div style="font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:8px;">Spoken voice</div>
         <div class="voice-row" id="voiceRow">
-          <button type="button" data-v="autumn">Autumn</button>
-          <button type="button" data-v="diana">Diana</button>
-          <button type="button" data-v="hannah">Hannah</button>
-        </div>
-        <div class="voice-row" style="margin-top:5px;">
-          <button type="button" data-v="austin">Austin</button>
-          <button type="button" data-v="daniel">Daniel</button>
-          <button type="button" data-v="troy">Troy</button>
+          <button type="button" data-v="troy" class="on">Troy</button>
         </div>
         <button type="button" class="now-btn" id="tryVoiceBtn" style="margin-top:9px;">Hear this voice</button>
         <div class="engine-tag" id="engineTag">Voice engine: not tested yet</div>
@@ -1352,7 +1345,7 @@ document.getElementById('themeBtn').onclick = () => applyTheme(theme === 'dark' 
  */
 let muted = false;
 let chosenVoice = null;
-let ttsVoice = 'tara';   // Orpheus voice; see the picker in settings
+let ttsVoice = 'troy';   // Orpheus voice
 
 const VOICE_PREFS = [
   /google (uk|us) english female/i,
@@ -1485,9 +1478,9 @@ function applyMute(m){
   btn.setAttribute('aria-label', muted ? 'Turn voice on' : 'Turn voice off');
   try{ localStorage.setItem('muted', muted ? '1' : '0'); }catch(e){}
 }
-const ORPHEUS_VOICES = ['autumn','diana','hannah','austin','daniel','troy'];
+const ORPHEUS_VOICES = ['troy'];
 function applyVoice(v){
-  if(ORPHEUS_VOICES.indexOf(v) === -1) v = 'autumn';  // clear out any old saved name
+  if(ORPHEUS_VOICES.indexOf(v) === -1) v = 'troy';  // clear out any old saved name
   ttsVoice = v;
   orpheusWorks = true;   // a new pick deserves a fresh attempt
   lastTtsError = null;
@@ -1498,7 +1491,7 @@ function applyVoice(v){
 function initVoice(){
   let saved = null;
   try{ saved = localStorage.getItem('tts_voice'); }catch(e){}
-  applyVoice(saved || 'autumn');
+  applyVoice(saved || 'troy');
   setEngineTag();
 }
 document.querySelectorAll('.voice-row button').forEach(b => {
@@ -2755,7 +2748,7 @@ let mediaRec = null, mediaStream = null, audioChunks = [];
 let audioCtx = null, analyser = null, levelRAF = null;
 let heardSpeech = false, quietSince = null, hardStopTimer = null;
 
-const SILENCE_HOLD_MS = 2200;   // how long a pause must last before we stop
+const SILENCE_HOLD_MS = 1500;   // how long a pause must last before we stop
 const MAX_RECORD_MS   = 45000;  // safety cap
 const SPEECH_RMS      = 0.022;  // above this counts as speech
 
@@ -2790,7 +2783,10 @@ async function startRecording(){
   if(recognizing) return;
   try{
     mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+      audio: {
+        echoCancellation:true, noiseSuppression:true, autoGainControl:true,
+        channelCount:1, sampleRate:16000   // what Whisper works from anyway
+      }
     });
   }catch(e){
     addMsg('system', 'I need microphone access \u2014 allow it for this site and try again.');
@@ -2801,7 +2797,9 @@ async function startRecording(){
 
   const mime = pickMime();
   try{
-    mediaRec = mime ? new MediaRecorder(mediaStream, {mimeType:mime}) : new MediaRecorder(mediaStream);
+    mediaRec = mime
+      ? new MediaRecorder(mediaStream, {mimeType:mime, audioBitsPerSecond:48000})
+      : new MediaRecorder(mediaStream);
   }catch(e){
     stopTracks();
     return legacyListen();
@@ -2874,7 +2872,7 @@ async function onRecordingStopped(){
     return;
   }
 
-  document.getElementById('micStatus').textContent = 'Transcribing\u2026';
+  document.getElementById('micStatus').textContent = 'Got it \u2014 working that out\u2026';
   try{
     const b64 = await new Promise((res, rej) => {
       const r = new FileReader();
