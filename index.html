@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Little Log</title>
+
+<!-- Home-screen install: icons, name, and status-bar colour -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Little Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#E39AAE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#201820" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -130,6 +141,59 @@
     color:var(--ink-faint); font-weight:600; margin-top:3px; display:block;
   }
 
+  /* ---------- Timers ---------- */
+  .tools{ display:flex; gap:8px; }
+  .tool{
+    flex:1; border:1px solid var(--line); background:var(--card); border-radius:15px;
+    padding:13px 6px; cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:6px; font-family:'Inter'; font-size:11.5px; font-weight:600;
+    color:var(--ink-soft); position:relative; transition: border-color .25s ease;
+  }
+  .tool.live{ border-color:var(--blush); color:var(--ink); }
+  .tool .pip{
+    position:absolute; top:9px; right:11px; width:7px; height:7px; border-radius:50%;
+    background:var(--blush); animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+  .tool-time{ font-family:'Fraunces', Georgia, serif; font-size:15px; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+  .timer-panel{
+    max-height:0; opacity:0; overflow:hidden;
+    transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease, margin-top .3s ease;
+  }
+  .timer-panel.open{ max-height:620px; opacity:1; margin-top:16px; }
+
+  .side-toggle{ display:flex; gap:7px; margin-bottom:14px; }
+  .side-toggle button{
+    flex:1; border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    border-radius:13px; padding:11px 6px; font-family:'Inter'; font-size:13px; font-weight:700;
+    cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  .side-toggle button.on{ background:var(--blush); border-color:var(--blush); color:var(--seg-on-tx); }
+  .side-toggle .side-sub{ font-size:10.5px; font-weight:600; opacity:.85; font-variant-numeric:tabular-nums; }
+
+  .big-time{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:52px;
+    text-align:center; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+    margin: 6px 0 4px;
+  }
+  .big-sub{ text-align:center; font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; min-height:18px; }
+
+  .bar{ height:7px; background:var(--line-soft); border-radius:99px; overflow:hidden; margin-bottom:16px; }
+  .bar i{ display:block; height:100%; background:var(--mint); border-radius:99px; transition: width .9s linear, background .4s ease; }
+
+  .target-row{ display:flex; align-items:center; gap:9px; justify-content:center; margin-bottom:15px; }
+  .target-row label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; }
+  .stepper{ display:flex; align-items:center; gap:5px; }
+  .stepper button{
+    width:29px; height:29px; border:1px solid var(--line); background:var(--bg); color:var(--ink);
+    border-radius:9px; font-size:16px; cursor:pointer; line-height:1; font-family:'Inter';
+  }
+  .stepper span{ min-width:44px; text-align:center; font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; }
+
+  .timer-actions{ display:flex; gap:8px; }
+  .timer-actions .btn{ flex:1; padding:13px; }
+
   /* ---------- Date navigation ---------- */
   .date-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
   .date-label{
@@ -228,6 +292,45 @@
     animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes popIn{ from{ opacity:0; transform:scale(.85);} to{ opacity:1; transform:scale(1);} }
+
+  .steps{ display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:13px; }
+  .step-dot{
+    height:5px; border-radius:99px; background:var(--line); flex:1; max-width:44px;
+    transition: background .35s ease, transform .35s ease;
+  }
+  .step-dot.done{ background:var(--mint); }
+  .step-dot.now{ background:var(--blush); transform:scaleY(1.9); }
+
+  .handsfree{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    margin-bottom:12px; font-size:12px; color:var(--ink-soft);
+  }
+  .switch{
+    width:38px; height:22px; border-radius:99px; background:var(--line);
+    border:none; position:relative; cursor:pointer; transition: background .25s ease; flex-shrink:0;
+  }
+  .switch::after{
+    content:''; position:absolute; top:3px; left:3px; width:16px; height:16px;
+    border-radius:50%; background:var(--card); transition: transform .25s cubic-bezier(.34,1.4,.64,1);
+    box-shadow:0 1px 3px rgba(0,0,0,.18);
+  }
+  .switch.on{ background:var(--mint); }
+  .switch.on::after{ transform: translateX(16px); }
+
+  .undo-bar{
+    display:none; align-items:center; justify-content:space-between; gap:9px;
+    background:color-mix(in srgb, var(--mint) 15%, var(--card));
+    border:1px solid color-mix(in srgb, var(--mint) 32%, var(--card));
+    border-radius:14px; padding:11px 13px; margin-bottom:13px;
+    animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .undo-bar.show{ display:flex; }
+  .undo-bar span{ font-size:13px; font-weight:600; color:var(--ink); }
+  .undo-bar div{ display:flex; gap:6px; }
+  .undo-bar button{
+    border:1px solid var(--line); background:var(--card); color:var(--ink-soft);
+    border-radius:9px; padding:6px 11px; font-family:'Inter'; font-size:12px; font-weight:600; cursor:pointer;
+  }
 
   .mic-row{ display:flex; flex-direction:column; align-items:center; gap:11px; }
   .mic-btn{
@@ -493,6 +596,74 @@
   </div>
 
   <div class="card">
+    <div class="tools">
+      <button class="tool" id="toolNurse">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blush)" stroke-width="2.2" stroke-linecap="round"><path d="M12 20.5s-7.5-4.7-7.5-10a4.3 4.3 0 0 1 7.5-2.8 4.3 4.3 0 0 1 7.5 2.8c0 5.3-7.5 10-7.5 10z"/></svg>
+        <span id="toolNurseLbl">Nurse</span>
+      </button>
+      <button class="tool" id="toolPump">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--plum)" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v6M7 9h10l-1.4 10.2A2 2 0 0 1 13.6 21h-3.2a2 2 0 0 1-2-1.8z"/></svg>
+        <span id="toolPumpLbl">Pump</span>
+      </button>
+      <button class="tool" id="toolSleep">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8z"/></svg>
+        <span id="toolSleepLbl">Sleep</span>
+      </button>
+    </div>
+
+    <div class="timer-panel" id="nursePanel">
+      <div class="side-toggle">
+        <button data-side="L">Left<span class="side-sub" id="subL">0:00</span></button>
+        <button data-side="R">Right<span class="side-sub" id="subR">0:00</span></button>
+      </div>
+      <div class="big-time" id="nurseTime">0:00</div>
+      <div class="big-sub" id="nurseSub"></div>
+      <div class="bar"><i id="nurseBar" style="width:0%"></i></div>
+      <div class="target-row">
+        <label>Target per side</label>
+        <div class="stepper">
+          <button type="button" id="tgtDown">−</button>
+          <span id="tgtVal">15 min</span>
+          <button type="button" id="tgtUp">+</button>
+        </div>
+      </div>
+      <div class="timer-actions">
+        <button class="btn ghost" id="nurseReset">Reset</button>
+        <button class="btn primary" id="nurseToggle">Start</button>
+        <button class="btn primary" id="nurseDone" style="display:none;">Done</button>
+      </div>
+    </div>
+
+    <div class="timer-panel" id="pumpPanel">
+      <div class="big-time" id="pumpTime">0:00</div>
+      <div class="big-sub" id="pumpSub"></div>
+      <div class="bar"><i id="pumpBar" style="width:0%"></i></div>
+      <div class="target-row">
+        <label>Target</label>
+        <div class="stepper">
+          <button type="button" id="ptgtDown">−</button>
+          <span id="ptgtVal">20 min</span>
+          <button type="button" id="ptgtUp">+</button>
+        </div>
+      </div>
+      <div class="timer-actions">
+        <button class="btn ghost" id="pumpReset">Reset</button>
+        <button class="btn primary" id="pumpToggle">Start</button>
+        <button class="btn primary" id="pumpDone" style="display:none;">Done</button>
+      </div>
+    </div>
+
+    <div class="timer-panel" id="sleepPanel">
+      <div class="big-time" id="sleepTime">0:00</div>
+      <div class="big-sub" id="sleepSub">Tap when she falls asleep</div>
+      <div class="timer-actions">
+        <button class="btn ghost" id="sleepCancel" style="display:none;">Cancel</button>
+        <button class="btn primary" id="sleepToggle">She's asleep</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="date-nav">
       <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
       <label class="date-label">
@@ -512,9 +683,25 @@
       <button data-mode="log" class="on">Log a feed</button>
       <button data-mode="ask">Ask about data</button>
     </div>
+    <div class="undo-bar" id="queueBadge" style="background:color-mix(in srgb, var(--gold) 15%, var(--card)); border-color:color-mix(in srgb, var(--gold) 32%, var(--card));">
+      <span></span>
+      <div><button id="syncNowBtn">Sync now</button></div>
+    </div>
+    <div class="steps" id="steps"></div>
+    <div class="undo-bar" id="undoBar">
+      <span>Saved to your sheet</span>
+      <div>
+        <button id="editSavedBtn">Edit</button>
+        <button id="undoSavedBtn">Undo</button>
+      </div>
+    </div>
     <div class="log" id="log"></div>
     <div class="starters" id="starters"></div>
     <div class="captured" id="captured"></div>
+    <div class="handsfree">
+      <button class="switch" id="hfSwitch" aria-label="Hands-free mode"></button>
+      <span>Hands-free — keep listening between questions</span>
+    </div>
     <div class="mic-row">
       <button class="mic-btn" id="micBtn" aria-label="Start talking">
         <svg width="29" height="29" viewBox="0 0 24 24" fill="white">
@@ -633,6 +820,8 @@
 /* ============ State ============ */
 const LEVELS = ['None','Light','Medium','Heavy'];
 const NUM_KEYS = ['left_breast','right_breast','formula','breast_milk','pump_output'];
+const FIELD_ORDER = ['date','time','left_breast','right_breast','formula','breast_milk',
+                     'pump_output','pee','poop','poop_color','notes'];
 const CAP_LABELS = {
   left_breast:'Left side', right_breast:'Right side', formula:'Formula',
   breast_milk:'Breast milk', pump_output:'Pumped', pee:'Wet diaper',
@@ -642,6 +831,42 @@ const CAP_LABELS = {
 let webhookUrl = null, secret = null;
 let collected = {}, awaitingConfirmation = false;
 let history = []; // real turn-by-turn history, so the model knows what it asked
+let mode = 'log';
+let handsFree = false;
+let lastSavedRow = null;
+let wakeLock = null;
+
+const STEP_KEYS = ['when','nursing','bottle','diaper','poop_color','notes'];
+
+function renderSteps(section){
+  const el = document.getElementById('steps');
+  if(!section || mode !== 'log'){ el.innerHTML = ''; return; }
+  const idx = STEP_KEYS.indexOf(section);
+  el.innerHTML = STEP_KEYS.map((k,i) => {
+    let cls = 'step-dot';
+    if(section === 'summary' || (idx > -1 && i < idx)) cls += ' done';
+    else if(i === idx) cls += ' now';
+    return '<div class="'+cls+'"></div>';
+  }).join('');
+}
+
+// Keep the screen awake mid-conversation so it doesn't lock one-handed.
+async function holdScreen(on){
+  try{
+    if(on && !wakeLock && navigator.wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if(!on && wakeLock){
+      await wakeLock.release(); wakeLock = null;
+    }
+  }catch(e){}
+}
+
+function startListening(){
+  if(!recognition || recognizing) return;
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  try{ recognition.start(); }catch(e){}
+}
 let viewDate = todayStr();
 let entries = [];
 let editingRow = null;
@@ -740,13 +965,21 @@ function renderPulse(){
   const bottled = entries.reduce((s,e) => s + (e.formula||0) + (e.breast_milk||0), 0);
   const pumped = entries.reduce((s,e) => s + (e.pump_output||0), 0);
   const diapers = entries.filter(e => (e.pee && e.pee!=='None') || (e.poop && e.poop!=='None')).length;
+  const sleepMin = entries.reduce((s,e) => {
+    if(!e.sleep_start || !e.sleep_end) return s;
+    const a = toMinutes(e.sleep_start), b = toMinutes(e.sleep_end);
+    if(a === null || b === null) return s;
+    let d = b - a; if(d < 0) d += 1440;
+    return s + d;
+  }, 0);
 
   document.getElementById('dailyStrip').innerHTML =
     stat(feeds.length, plural(feeds.length,'feed','feeds')) +
     stat(nursed ? nursed+'m' : '—', 'nursed') +
     stat(bottled ? bottled+'ml' : '—', 'bottle') +
     stat(pumped ? pumped+'ml' : '—', 'pumped') +
-    stat(diapers || '—', plural(diapers,'diaper','diapers'));
+    stat(diapers || '—', plural(diapers,'diaper','diapers')) +
+    stat(sleepMin ? (sleepMin>=60 ? Math.floor(sleepMin/60)+'h '+(sleepMin%60)+'m' : sleepMin+'m') : '—', 'slept');
 }
 function stat(n,l){
   const blank = (n === '\u2014' || n === 0 || n === '0');
@@ -761,6 +994,7 @@ const GLYPH = {
   bottle:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"><path d="M9 3h6M8 8h8v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2zM10 3v5M14 3v5"/></svg>',
   pump:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--plum)" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v6M7 9h10l-1.4 10.2A2 2 0 0 1 13.6 21h-3.2a2 2 0 0 1-2-1.8z"/></svg>',
   wet:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="var(--plum)"><path d="M12 2.5S5 10.2 5 14.6a7 7 0 0 0 14 0C19 10.2 12 2.5 12 2.5z"/></svg>',
+  sleep: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8z"/></svg>',
   dirty: '<svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gold)"><ellipse cx="12" cy="16.5" rx="8.5" ry="4.5"/><ellipse cx="9.5" cy="11.5" rx="4.5" ry="3.5"/><ellipse cx="14.5" cy="9.5" rx="3.5" ry="3"/></svg>'
 };
 
@@ -786,6 +1020,16 @@ function renderTimeline(){
     if(bottle.length) lines.push(line(GLYPH.bottle, bottle.join(' · ')));
 
     if(e.pump_output) lines.push(line(GLYPH.pump, e.pump_output+' ml pumped'));
+
+    if(e.sleep_start && e.sleep_end){
+      const a = toMinutes(e.sleep_start), b = toMinutes(e.sleep_end);
+      let dur = (a !== null && b !== null) ? b - a : null;
+      if(dur !== null && dur < 0) dur += 1440;
+      const durTxt = dur === null ? '' :
+        (dur >= 60 ? Math.floor(dur/60)+'h '+(dur%60)+'m' : dur+'m');
+      lines.push(line(GLYPH.sleep, 'Slept ' + durTxt +
+        ' <span style="color:var(--ink-soft)">' + esc(e.sleep_start) + '\u2013' + esc(e.sleep_end) + '</span>'));
+    }
 
     if(e.pee && e.pee !== 'None') lines.push(line(GLYPH.wet, 'Wet<span class="lvl '+e.pee+'">'+e.pee+'</span>'));
     if(e.poop && e.poop !== 'None'){
@@ -908,8 +1152,8 @@ if(window.speechSynthesis){
   speechSynthesis.onvoiceschanged = pickVoice; // voices load async on most browsers
 }
 
-function speak(text){
-  if(muted || !window.speechSynthesis) return;
+function speak(text, onEnd){
+  if(muted || !window.speechSynthesis){ if(onEnd) setTimeout(onEnd, 250); return; }
   try{
     speechSynthesis.cancel(); // never let two replies overlap
     const u = new SpeechSynthesisUtterance(text);
@@ -917,8 +1161,15 @@ function speak(text){
     u.rate = 0.94;   // unhurried
     u.pitch = 1.06;  // a touch warmer without going squeaky
     u.volume = 0.85; // gentle at 3am
+    if(onEnd){
+      let fired = false;
+      const go = () => { if(!fired){ fired = true; onEnd(); } };
+      u.onend = go;
+      u.onerror = go;
+      setTimeout(go, 12000); // safety net if the engine never fires onend
+    }
     speechSynthesis.speak(u);
-  }catch(e){}
+  }catch(e){ if(onEnd) setTimeout(onEnd, 250); }
 }
 
 function applyMute(m){
@@ -949,10 +1200,10 @@ function renderCaptured(){
 }
 
 const STARTERS = [
+  'Same as last time',
   'Nursed 10 min each side',
   '60 ml formula',
-  'Wet diaper, medium',
-  'Pumped 90 ml'
+  'Wet diaper, medium'
 ];
 const ASK_STARTERS = [
   'How many feeds today?',
@@ -960,10 +1211,8 @@ const ASK_STARTERS = [
   'When did she last poop?',
   'Is today different from usual?',
   'How much have I pumped this week?',
-  'Am I favouring one side?'
+  'How much did she sleep yesterday?'
 ];
-
-let mode = 'log';
 
 function currentStarters(){ return mode === 'log' ? STARTERS : ASK_STARTERS; }
 
@@ -1037,24 +1286,416 @@ async function processInput(text){
     history.push({role:'assistant', content:reply});
     if(history.length > 14) history = history.slice(-14);
     addMsg('bot', reply);
-    speak(reply);
-
-    if(data.done) openSheet(null);
+    renderSteps(data.section);
     document.getElementById('micStatus').textContent = 'Tap to talk';
+
+    if(data.done){
+      // The voice flow already confirmed - saving straight away beats making
+      // them tap Save again. Undo is one tap if it got something wrong.
+      speak(reply);
+      holdScreen(false);
+      await autoSave();
+    } else {
+      // Hands-free: reopen the mic once the reply has finished speaking.
+      speak(reply, handsFree ? startListening : null);
+      if(handsFree && muted) setTimeout(startListening, 350);
+    }
   }catch(e){
     addMsg('system', 'That didn\u2019t go through — ' + (e.message || e));
     document.getElementById('micStatus').textContent = 'Tap to talk';
   }
 }
 
+async function autoSave(){
+  const payload = {};
+  FIELD_ORDER.forEach(k => {
+    payload[k] = NUM_KEYS.indexOf(k) > -1 ? (Number(collected[k]) || 0) : (collected[k] || '');
+  });
+  payload.date = collected.date || todayStr();
+  payload.time = collected.time || nowTimeStr();
+  payload.pee  = collected.pee  || 'None';
+  payload.poop = collected.poop || 'None';
+
+  const ok = await saveOrQueue(payload);
+  if(ok) document.getElementById('undoBar').classList.add('show');
+  setTimeout(() => { resetChat(); }, 900);
+}
+
+document.getElementById('syncNowBtn').onclick = flushQueue;
+
+document.getElementById('undoSavedBtn').onclick = async () => {
+  if(!lastSavedRow) return;
+  try{
+    await api({action:'delete', row:lastSavedRow});
+    lastSavedRow = null;
+    document.getElementById('undoBar').classList.remove('show');
+    await loadEntries();
+  }catch(e){}
+};
+document.getElementById('editSavedBtn').onclick = () => {
+  const hit = entries.find(e => e.row === lastSavedRow);
+  if(hit) openSheet(hit);
+};
+
 function resetChat(){
   collected = {}; awaitingConfirmation = false; history = [];
+  renderSteps(null);
   document.getElementById('log').innerHTML = '';
   renderCaptured();
   greet();
 }
 
 /* ============ Editor sheet ============ */
+
+
+
+/* ============ Offline queue ============
+ * A save that fails at 3am must never just vanish. Failed writes are parked in
+ * localStorage and retried on load, on reconnect, and periodically.
+ */
+const Q_KEY = 'littlelog_queue';
+function readQueue(){
+  try{ return JSON.parse(localStorage.getItem(Q_KEY) || '[]'); }catch(e){ return []; }
+}
+function writeQueue(q){
+  try{ localStorage.setItem(Q_KEY, JSON.stringify(q)); }catch(e){}
+  renderQueueBadge();
+}
+function renderQueueBadge(){
+  const n = readQueue().length;
+  const el = document.getElementById('queueBadge');
+  if(!el) return;
+  el.style.display = n ? 'flex' : 'none';
+  el.querySelector('span').textContent = n === 1
+    ? '1 entry waiting to sync' : n + ' entries waiting to sync';
+}
+
+async function saveOrQueue(payload, successMsg){
+  try{
+    const res = await api(payload);
+    if(res.status !== 'success') throw new Error(res.message || 'save failed');
+    lastSavedRow = res.row || null;
+    if(successMsg) addMsg('system', successMsg);
+    if(payload.date && payload.date !== viewDate) viewDate = payload.date;
+    await loadEntries();
+    return true;
+  }catch(e){
+    const q = readQueue();
+    q.push(payload);
+    writeQueue(q);
+    addMsg('system', 'Saved offline \u2014 it\u2019ll sync when you\u2019re back online.');
+    return false;
+  }
+}
+
+async function flushQueue(){
+  let q = readQueue();
+  if(!q.length || !webhookUrl || !secret) return;
+  const remaining = [];
+  for(const payload of q){
+    try{
+      const res = await api(payload);
+      if(res.status !== 'success') throw new Error();
+    }catch(e){
+      remaining.push(payload); // keep it for the next attempt
+    }
+  }
+  writeQueue(remaining);
+  if(remaining.length < q.length) await loadEntries();
+}
+window.addEventListener('online', flushQueue);
+setInterval(flushQueue, 60000);
+
+/* ============ Timers ============
+ * All timers store an absolute start timestamp, never a tick count, so they
+ * stay accurate through a locked screen, a backgrounded tab, or a reload.
+ */
+const T_KEY = 'littlelog_timers';
+let T = {
+  nurse: { side:'L', running:false, startedAt:null, acc:{L:0,R:0}, target:15, warned:{} },
+  pump:  { running:false, startedAt:null, acc:0, target:20, warned:{} },
+  sleep: { running:false, startedAt:null }
+};
+
+function saveTimers(){ try{ localStorage.setItem(T_KEY, JSON.stringify(T)); }catch(e){} }
+function loadTimers(){
+  try{
+    const raw = localStorage.getItem(T_KEY);
+    if(raw){
+      const p = JSON.parse(raw);
+      if(p && p.nurse && p.pump && p.sleep) T = p;
+    }
+  }catch(e){}
+}
+
+function liveMs(t){ return t.running && t.startedAt ? Date.now() - t.startedAt : 0; }
+function nurseSideMs(side){
+  return T.nurse.acc[side] + (T.nurse.running && T.nurse.side === side ? liveMs(T.nurse) : 0);
+}
+function fmtMS(ms){
+  const s = Math.max(0, Math.floor(ms/1000));
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+function fmtHM(ms){
+  const m = Math.max(0, Math.floor(ms/60000));
+  return m >= 60 ? Math.floor(m/60)+'h '+(m%60)+'m' : m+'m';
+}
+function chime(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18].forEach((delay, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = i ? 784 : 587;   // gentle two-note, not an alarm
+      o.type = 'sine';
+      const t0 = ctx.currentTime + delay;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+      o.start(t0); o.stop(t0 + 0.55);
+    });
+  }catch(e){}
+}
+function nudge(text){
+  chime();
+  // Timer nudges speak even when chat voice is muted - that's the point of them.
+  try{
+    if(window.speechSynthesis){
+      const u = new SpeechSynthesisUtterance(text);
+      if(chosenVoice) u.voice = chosenVoice;
+      u.rate = 0.94; u.pitch = 1.06; u.volume = 0.9;
+      setTimeout(() => speechSynthesis.speak(u), 700);
+    }
+  }catch(e){}
+}
+
+/* ---------- Panels ---------- */
+function openPanel(which){
+  ['nurse','pump','sleep'].forEach(k => {
+    const p = document.getElementById(k+'Panel');
+    p.classList.toggle('open', k === which && !p.classList.contains('open'));
+  });
+}
+
+/* ---------- Nursing ---------- */
+function renderNurse(){
+  const n = T.nurse;
+  const cur = nurseSideMs(n.side);
+  const tgtMs = n.target * 60000;
+
+  document.getElementById('subL').textContent = fmtMS(nurseSideMs('L'));
+  document.getElementById('subR').textContent = fmtMS(nurseSideMs('R'));
+  document.querySelectorAll('.side-toggle button').forEach(b =>
+    b.classList.toggle('on', b.dataset.side === n.side));
+
+  document.getElementById('nurseTime').textContent = fmtMS(cur);
+  document.getElementById('tgtVal').textContent = n.target + ' min';
+  document.getElementById('nurseToggle').textContent = n.running ? 'Pause' : (cur > 0 ? 'Resume' : 'Start');
+
+  const pct = Math.min(100, (cur / tgtMs) * 100);
+  const bar = document.getElementById('nurseBar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 100 ? 'var(--blush)' : pct >= 75 ? 'var(--gold)' : 'var(--mint)';
+
+  const other = n.side === 'L' ? 'R' : 'L';
+  const otherDone = nurseSideMs(other) >= tgtMs;
+  const left = Math.max(0, tgtMs - cur);
+  document.getElementById('nurseSub').textContent =
+    !n.running && cur === 0 ? 'Pick a side and start' :
+    left > 0 ? fmtMS(left) + ' left on the ' + (n.side === 'L' ? 'left' : 'right') :
+    otherDone ? 'Both sides done \u2014 tap Done to log it' :
+                'Time to switch to the ' + (other === 'L' ? 'left' : 'right');
+
+  const anyTime = nurseSideMs('L') + nurseSideMs('R') > 0;
+  document.getElementById('nurseDone').style.display = anyTime ? 'block' : 'none';
+
+  // Reminders, each fired once per side
+  const key = n.side + '-' + Math.floor(n.target);
+  if(n.running && left <= 60000 && left > 0 && !n.warned[key+'-1m']){
+    n.warned[key+'-1m'] = true; saveTimers();
+    nudge('One minute left on the ' + (n.side === 'L' ? 'left' : 'right') + ' side.');
+  }
+  if(n.running && cur >= tgtMs && !n.warned[key+'-done']){
+    n.warned[key+'-done'] = true; saveTimers();
+    if(otherDone){
+      nudge('That\u2019s both sides done. You can log it now, or top up with a bottle.');
+    } else {
+      nudge('Time to switch to the ' + (other === 'L' ? 'left' : 'right') + ' side.');
+    }
+  }
+
+  const tool = document.getElementById('toolNurse');
+  tool.classList.toggle('live', n.running);
+  document.getElementById('toolNurseLbl').innerHTML = anyTime
+    ? '<span class="tool-time">' + fmtMS(nurseSideMs('L') + nurseSideMs('R')) + '</span>'
+    : 'Nurse';
+  tool.querySelector('.pip')?.remove();
+  if(n.running) tool.insertAdjacentHTML('afterbegin', '<span class="pip"></span>');
+}
+
+function nurseSwitch(side){
+  const n = T.nurse;
+  if(n.side === side) return;
+  if(n.running){ n.acc[n.side] += liveMs(n); n.startedAt = Date.now(); }
+  n.side = side; saveTimers(); renderNurse();
+}
+function nurseToggle(){
+  const n = T.nurse;
+  if(n.running){ n.acc[n.side] += liveMs(n); n.running = false; n.startedAt = null; }
+  else { n.running = true; n.startedAt = Date.now(); holdScreen(true); }
+  saveTimers(); renderNurse();
+}
+function nurseReset(){
+  T.nurse = { side:'L', running:false, startedAt:null, acc:{L:0,R:0}, target:T.nurse.target, warned:{} };
+  saveTimers(); renderNurse();
+}
+function nurseFinish(){
+  const n = T.nurse;
+  if(n.running){ n.acc[n.side] += liveMs(n); n.running = false; n.startedAt = null; }
+  const L = Math.round(n.acc.L / 60000), R = Math.round(n.acc.R / 60000);
+  nurseReset();
+  openPanel(null);
+  // Hand the measured minutes straight to the chat flow
+  collected.left_breast = L;
+  collected.right_breast = R;
+  collected._when = true;
+  if(!collected.date) collected.date = todayStr();
+  if(!collected.time) collected.time = nowTimeStr();
+  renderCaptured();
+  addMsg('system', 'Nursing timer: ' + L + ' min left, ' + R + ' min right');
+  processInput('She nursed ' + L + ' minutes on the left and ' + R + ' minutes on the right.');
+}
+
+/* ---------- Pump ---------- */
+function renderPump(){
+  const p = T.pump;
+  const cur = p.acc + liveMs(p);
+  const tgtMs = p.target * 60000;
+  document.getElementById('pumpTime').textContent = fmtMS(cur);
+  document.getElementById('ptgtVal').textContent = p.target + ' min';
+  document.getElementById('pumpToggle').textContent = p.running ? 'Pause' : (cur > 0 ? 'Resume' : 'Start');
+  document.getElementById('pumpDone').style.display = cur > 0 ? 'block' : 'none';
+
+  const pct = Math.min(100, (cur / tgtMs) * 100);
+  const bar = document.getElementById('pumpBar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 100 ? 'var(--blush)' : pct >= 75 ? 'var(--gold)' : 'var(--mint)';
+  const left = Math.max(0, tgtMs - cur);
+  document.getElementById('pumpSub').textContent =
+    !p.running && cur === 0 ? 'Tap start when you begin' :
+    left > 0 ? fmtMS(left) + ' left' : 'Target reached \u2014 tap Done when you finish';
+
+  if(p.running && cur >= tgtMs && !p.warned.done){
+    p.warned.done = true; saveTimers();
+    nudge('You\u2019ve hit your pumping target.');
+  }
+
+  const tool = document.getElementById('toolPump');
+  tool.classList.toggle('live', p.running);
+  document.getElementById('toolPumpLbl').innerHTML = cur > 0
+    ? '<span class="tool-time">' + fmtMS(cur) + '</span>' : 'Pump';
+  tool.querySelector('.pip')?.remove();
+  if(p.running) tool.insertAdjacentHTML('afterbegin', '<span class="pip"></span>');
+}
+function pumpToggle(){
+  const p = T.pump;
+  if(p.running){ p.acc += liveMs(p); p.running = false; p.startedAt = null; }
+  else { p.running = true; p.startedAt = Date.now(); holdScreen(true); }
+  saveTimers(); renderPump();
+}
+function pumpReset(){
+  T.pump = { running:false, startedAt:null, acc:0, target:T.pump.target, warned:{} };
+  saveTimers(); renderPump();
+}
+function pumpFinish(){
+  const p = T.pump;
+  if(p.running){ p.acc += liveMs(p); p.running = false; p.startedAt = null; }
+  const mins = Math.round(p.acc / 60000);
+  pumpReset();
+  openPanel(null);
+  collected._when = true;
+  if(!collected.date) collected.date = todayStr();
+  if(!collected.time) collected.time = nowTimeStr();
+  collected.notes = (collected.notes ? collected.notes + '; ' : '') + 'pumped ' + mins + ' min';
+  renderCaptured();
+  addMsg('system', 'Pumped for ' + mins + ' min');
+  processInput('I pumped for ' + mins + ' minutes. How much did I get? I will tell you the amount.');
+}
+
+/* ---------- Sleep ---------- */
+function renderSleep(){
+  const sl = T.sleep;
+  const cur = liveMs(sl);
+  document.getElementById('sleepTime').textContent = sl.running ? fmtHM(cur) : '0m';
+  document.getElementById('sleepToggle').textContent = sl.running ? 'She\u2019s awake' : 'She\u2019s asleep';
+  document.getElementById('sleepCancel').style.display = sl.running ? 'block' : 'none';
+  document.getElementById('sleepSub').textContent = sl.running
+    ? 'Asleep since ' + new Date(sl.startedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+    : 'Tap when she falls asleep';
+
+  const tool = document.getElementById('toolSleep');
+  tool.classList.toggle('live', sl.running);
+  document.getElementById('toolSleepLbl').innerHTML = sl.running
+    ? '<span class="tool-time">' + fmtHM(cur) + '</span>' : 'Sleep';
+  tool.querySelector('.pip')?.remove();
+  if(sl.running) tool.insertAdjacentHTML('afterbegin', '<span class="pip"></span>');
+}
+async function sleepToggle(){
+  const sl = T.sleep;
+  if(!sl.running){
+    sl.running = true; sl.startedAt = Date.now();
+    saveTimers(); renderSleep();
+    return;
+  }
+  // Waking: two taps total have now captured a whole sleep.
+  const startTs = sl.startedAt, endTs = Date.now();
+  T.sleep = { running:false, startedAt:null };
+  saveTimers(); renderSleep(); openPanel(null);
+
+  const f = ts => new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const payload = {
+    date: new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(startTs)),
+    time: f(startTs),
+    left_breast:0, right_breast:0, formula:0, breast_milk:0, pump_output:0,
+    pee:'None', poop:'None', poop_color:'', notes:'',
+    sleep_start: f(startTs), sleep_end: f(endTs)
+  };
+  await saveOrQueue(payload, 'Sleep logged \u2014 ' + fmtHM(endTs - startTs));
+}
+
+/* ---------- One tick drives every timer ---------- */
+function tickTimers(){
+  renderNurse(); renderPump(); renderSleep();
+}
+
+function initTimers(){
+  loadTimers();
+  document.getElementById('toolNurse').onclick = () => openPanel('nurse');
+  document.getElementById('toolPump').onclick  = () => openPanel('pump');
+  document.getElementById('toolSleep').onclick = () => openPanel('sleep');
+
+  document.querySelectorAll('.side-toggle button').forEach(b =>
+    b.onclick = () => nurseSwitch(b.dataset.side));
+  document.getElementById('nurseToggle').onclick = nurseToggle;
+  document.getElementById('nurseReset').onclick = nurseReset;
+  document.getElementById('nurseDone').onclick = nurseFinish;
+  document.getElementById('tgtUp').onclick = () => { T.nurse.target = Math.min(45, T.nurse.target+1); T.nurse.warned={}; saveTimers(); renderNurse(); };
+  document.getElementById('tgtDown').onclick = () => { T.nurse.target = Math.max(1, T.nurse.target-1); T.nurse.warned={}; saveTimers(); renderNurse(); };
+
+  document.getElementById('pumpToggle').onclick = pumpToggle;
+  document.getElementById('pumpReset').onclick = pumpReset;
+  document.getElementById('pumpDone').onclick = pumpFinish;
+  document.getElementById('ptgtUp').onclick = () => { T.pump.target = Math.min(60, T.pump.target+1); T.pump.warned={}; saveTimers(); renderPump(); };
+  document.getElementById('ptgtDown').onclick = () => { T.pump.target = Math.max(1, T.pump.target-1); T.pump.warned={}; saveTimers(); renderPump(); };
+
+  document.getElementById('sleepToggle').onclick = sleepToggle;
+  document.getElementById('sleepCancel').onclick = () => {
+    T.sleep = { running:false, startedAt:null }; saveTimers(); renderSleep();
+  };
+
+  tickTimers();
+  setInterval(tickTimers, 1000);
+}
 
 /* ============ Time wheels + calendar ============
  * Wheels beat a dial one-handed: flick to the number, no aiming.
@@ -1440,9 +2081,23 @@ if(SR){
   document.getElementById('micStatus').textContent = 'Voice needs Chrome — type below instead';
   document.getElementById('micBtn').disabled = true;
 }
+function applyHandsFree(v){
+  handsFree = v;
+  document.getElementById('hfSwitch').classList.toggle('on', v);
+  try{ localStorage.setItem('handsfree', v ? '1' : '0'); }catch(e){}
+  holdScreen(v);
+}
+document.getElementById('hfSwitch').onclick = () => applyHandsFree(!handsFree);
+function initHandsFree(){
+  let saved = null;
+  try{ saved = localStorage.getItem('handsfree'); }catch(e){}
+  applyHandsFree(saved === '1');
+}
+
 document.getElementById('micBtn').onclick = () => {
   if(!recognition) return;
   if(recognizing){ recognition.stop(); return; }
+  holdScreen(true);
   // TTS playing while the mic opens makes Chrome return empty transcripts.
   try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
   try{ recognition.start(); }catch(e){
@@ -1468,6 +2123,10 @@ document.getElementById('manualBtn').onclick = () => {
 /* ============ Boot ============ */
 initTheme();
 initMute();
+initHandsFree();
+initTimers();
+renderQueueBadge();
+flushQueue();
 buildSegs();
 initClock();
 loadSetup();
