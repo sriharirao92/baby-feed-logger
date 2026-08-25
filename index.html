@@ -641,6 +641,7 @@ const CAP_LABELS = {
 
 let webhookUrl = null, secret = null;
 let collected = {}, awaitingConfirmation = false;
+let history = []; // real turn-by-turn history, so the model knows what it asked
 let viewDate = todayStr();
 let entries = [];
 let editingRow = null;
@@ -977,7 +978,9 @@ function renderStarters(show){
 
 function greet(){
   if(mode === 'log'){
-    addMsg('bot', "Tell me what happened, in your own words. I'll fill in the rest — or just say \u201csave it\u201d when you're done.");
+    const g = "Hi! Let's get this logged. Is this feed for right now, or a different time?";
+    addMsg('bot', g);
+    history = [{role:'assistant', content:g}];
   } else {
     addMsg('bot', "Ask me anything about what you've logged — patterns, gaps, diaper counts, how today compares to usual.");
   }
@@ -990,7 +993,7 @@ document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
     mode = b.dataset.mode;
     document.getElementById('modeToggle').querySelectorAll('button')
       .forEach(x => x.classList.toggle('on', x.dataset.mode === mode));
-    collected = {}; awaitingConfirmation = false;
+    collected = {}; awaitingConfirmation = false; history = [];
     renderCaptured();
     document.getElementById('log').innerHTML = '';
     document.getElementById('typeInput').placeholder = mode === 'log' ? 'or type it here' : 'or type your question';
@@ -1022,13 +1025,17 @@ async function processInput(text){
       return;
     }
 
-    const data = await api({action:'parse', transcript:text, collected, awaiting_confirmation:awaitingConfirmation});
+    const data = await api({action:'parse', transcript:text, collected,
+                            awaiting_confirmation:awaitingConfirmation, history});
     if(data.status !== 'success') throw new Error(data.message);
+    history.push({role:'user', content:text});
 
     collected = Object.assign({}, collected, data.fields || {});
     awaitingConfirmation = !!data.awaiting_confirmation;
     renderCaptured();
     const reply = data.reply || "Got that — anything else, or should I save it?";
+    history.push({role:'assistant', content:reply});
+    if(history.length > 14) history = history.slice(-14);
     addMsg('bot', reply);
     speak(reply);
 
@@ -1041,7 +1048,7 @@ async function processInput(text){
 }
 
 function resetChat(){
-  collected = {}; awaitingConfirmation = false;
+  collected = {}; awaitingConfirmation = false; history = [];
   document.getElementById('log').innerHTML = '';
   renderCaptured();
   greet();
@@ -1453,7 +1460,7 @@ document.getElementById('typeInput').addEventListener('keydown', e => {
 });
 
 document.getElementById('manualBtn').onclick = () => {
-  collected = {}; awaitingConfirmation = false;
+  collected = {}; awaitingConfirmation = false; history = [];
   renderCaptured();
   openSheet(null);
 };
