@@ -158,7 +158,41 @@
   }
   .sec-note{ font-size:11.5px; color:var(--ink-faint); margin-bottom:14px; line-height:1.45; }
 
-  .metric-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tblock{ margin-bottom:22px; }
+  .tblock:last-of-type{ margin-bottom:8px; }
+  .tb-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px; }
+  .tb-title{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.07em;
+    font-weight:700; color:var(--ink-faint);
+  }
+  .tb-value{
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:26px;
+    line-height:1.15; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+  }
+  .tb-sub{
+    font-family:'Inter', sans-serif; font-size:11.5px; font-weight:500; color:var(--ink-soft);
+  }
+  .tb-foot{
+    font-size:12px; color:var(--ink-soft); padding-top:12px;
+    border-top:1px solid var(--line-soft); margin-top:4px;
+  }
+  .tb-foot b{ color:var(--ink); }
+
+  .delta{
+    font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:99px; white-space:nowrap;
+  }
+  .delta.up{ background:color-mix(in srgb, var(--mint) 16%, var(--card)); color:var(--mint); }
+  .delta.down{ background:color-mix(in srgb, var(--gold) 18%, var(--card)); color:var(--gold); }
+  .delta.flat{ background:var(--bg); color:var(--ink-faint); }
+
+  .chart{ width:100%; height:auto; display:block; margin-top:8px; overflow:visible; }
+  .chart .grid{ stroke:var(--line-soft); stroke-width:1; }
+  .chart .mean{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; opacity:.55; }
+  .chart .ax{ font-family:'Inter',sans-serif; font-size:8.5px; fill:var(--ink-faint); font-weight:600; }
+  .chart .mean-lbl{ opacity:.8; }
+
+  .bal-label{ font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-top:14px; }
+  .bal-label:first-child{ margin-top:0; }
   .metric{
     background:var(--bg); border:1px solid var(--line); border-radius:15px; padding:13px;
   }
@@ -675,15 +709,7 @@
       Paste the web app link from your Apps Script deployment, plus the secret you set in the script.
       <input id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
       <input id="secretInput" placeholder="Secret" autocomplete="off">
-      <div style="margin-top:16px; padding-top:15px; border-top:1px solid var(--line-soft);">
-        <div style="font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:8px;">Spoken voice</div>
-        <div class="voice-row" id="voiceRow">
-          <button type="button" data-v="troy" class="on">Troy</button>
-        </div>
-        <button type="button" class="now-btn" id="tryVoiceBtn" style="margin-top:9px;">Hear this voice</button>
-        <div class="engine-tag" id="engineTag">Voice engine: not tested yet</div>
-      </div>
-      <div style="display:flex; gap:9px; margin-top:14px;">
+      <div style="display:flex; gap:9px; margin-top:16px;">
         <button class="btn ghost" id="cancelSetupBtn" style="flex:0 0 auto; padding:12px 16px;">Cancel</button>
         <button class="btn primary" id="saveSetupBtn" style="padding:12px;">Save connection</button>
       </div>
@@ -894,28 +920,40 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="sec-title">Day by day</div>
-      <div class="sec-note">Your own numbers over the window &mdash; no targets, no comparisons.</div>
-      <div class="metric-grid" id="metricGrid"></div>
+    <div class="card" id="clockCard">
+      <div class="sec-title">When she feeds</div>
+      <div class="sec-note">Every feed in the window, stacked by hour. Tall bars are her reliable times.</div>
+      <div id="hourChart"></div>
     </div>
 
-    <div class="card" id="sleepCard">
+    <div class="card" id="feedCard">
+      <div class="sec-title">Feeding</div>
+      <div class="sec-note">How much and how often, day by day.</div>
+      <div id="feedCharts"></div>
+    </div>
+
+    <div class="card" id="sleepTrendCard">
       <div class="sec-title">Sleep</div>
       <div class="sec-note">The longest unbroken stretch is usually the one worth watching.</div>
-      <div class="metric-grid" id="sleepGrid"></div>
+      <div id="sleepCharts"></div>
+    </div>
+
+    <div class="card" id="diaperCard">
+      <div class="sec-title">Nappies</div>
+      <div class="sec-note">Daily counts &mdash; steadiness matters more than any single day.</div>
+      <div id="diaperCharts"></div>
+    </div>
+
+    <div class="card" id="pumpTrendCard">
+      <div class="sec-title">Pumping</div>
+      <div class="sec-note">Output, time spent, and how much you get per hour of pumping.</div>
+      <div id="pumpCharts"></div>
     </div>
 
     <div class="card" id="balanceCard">
       <div class="sec-title">Side balance</div>
       <div class="sec-note">Nursing and pumping minutes split between sides.</div>
       <div id="balanceBody"></div>
-    </div>
-
-    <div class="card" id="pumpCard">
-      <div class="sec-title">Pumping</div>
-      <div class="sec-note">Output and time spent, per day and per session.</div>
-      <div class="metric-grid" id="pumpGrid"></div>
     </div>
   </div>
 </div>
@@ -1345,7 +1383,7 @@ document.getElementById('themeBtn').onclick = () => applyTheme(theme === 'dark' 
  */
 let muted = false;
 let chosenVoice = null;
-let ttsVoice = 'troy';   // Orpheus voice
+const ttsVoice = 'troy';   // the only voice; no picker needed
 
 const VOICE_PREFS = [
   /google (uk|us) english female/i,
@@ -1380,7 +1418,7 @@ function speakBrowser(text, onEnd){
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if(chosenVoice) u.voice = chosenVoice;
-    u.rate = 0.94; u.pitch = 1.06; u.volume = 0.85;
+    u.rate = 1.08; u.pitch = 1.06; u.volume = 0.85;
     if(onEnd){
       let fired = false;
       const go = () => { if(!fired){ fired = true; onEnd(); } };
@@ -1400,6 +1438,9 @@ let orpheusWorks = true;   // flips false after a failure, so we stop retrying
 let lastTtsError = null;
 let lastEngine = null;     // 'orpheus' | 'browser'
 
+// No visible UI for this now (single voice = nothing to pick), but kept as an
+// internal signal - lastEngine/lastTtsError are still useful if Orpheus ever
+// needs debugging again (e.g. via the browser console).
 function setEngineTag(){
   const el = document.getElementById('engineTag');
   if(!el) return;
@@ -1451,6 +1492,10 @@ async function speak(text, onEnd){
     lastEngine = 'orpheus'; lastTtsError = null; setEngineTag();
     ttsAudio = new Audio(url);
     ttsAudio.volume = 0.95;
+    ttsAudio.playbackRate = 1.15;
+    ttsAudio.preservesPitch = true;      // speed up without going chipmunk
+    ttsAudio.mozPreservesPitch = true;
+    ttsAudio.webkitPreservesPitch = true;
     if(onEnd){
       let fired = false;
       const go = () => { if(!fired){ fired = true; onEnd(); } };
@@ -1478,39 +1523,6 @@ function applyMute(m){
   btn.setAttribute('aria-label', muted ? 'Turn voice on' : 'Turn voice off');
   try{ localStorage.setItem('muted', muted ? '1' : '0'); }catch(e){}
 }
-const ORPHEUS_VOICES = ['troy'];
-function applyVoice(v){
-  if(ORPHEUS_VOICES.indexOf(v) === -1) v = 'troy';  // clear out any old saved name
-  ttsVoice = v;
-  orpheusWorks = true;   // a new pick deserves a fresh attempt
-  lastTtsError = null;
-  document.querySelectorAll('.voice-row button')
-    .forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  try{ localStorage.setItem('tts_voice', v); }catch(e){}
-}
-function initVoice(){
-  let saved = null;
-  try{ saved = localStorage.getItem('tts_voice'); }catch(e){}
-  applyVoice(saved || 'troy');
-  setEngineTag();
-}
-document.querySelectorAll('.voice-row button').forEach(b => {
-  b.onclick = () => applyVoice(b.dataset.v);
-});
-document.getElementById('tryVoiceBtn').onclick = async () => {
-  const btn = document.getElementById('tryVoiceBtn');
-  const was = muted;
-  muted = false;          // a preview should play even when muted
-  orpheusWorks = true;    // always give Orpheus a fresh attempt
-  lastTtsError = null;
-  btn.textContent = 'Loading\u2026';
-  await speak(SAMPLE_LINE, () => { btn.textContent = 'Hear this voice'; muted = was; });
-  setTimeout(() => { btn.textContent = 'Hear this voice'; muted = was; setEngineTag(); }, 1400);
-};
-
-// Written the way we want it delivered - warm, lifted, unhurried.
-const SAMPLE_LINE = "Hey, hi! I'm all ears. So, how did that feed go?";
-
 function initMute(){
   let saved = null;
   try{ saved = localStorage.getItem('muted'); }catch(e){}
@@ -1560,16 +1572,20 @@ function renderStarters(show){
   });
 }
 
-function greet(){
+function greet(spoken){
   if(mode === 'log'){
     const g = "Hi! Let's get this logged. Is this feed for right now, or a different time?";
     addMsg('bot', g);
     history = [{role:'assistant', content:g}];
     currentSection = 'when';
+    renderStarters(true);
+    if(spoken) speak(g, startListening);   // tapping "Talk it through" means start talking
   } else {
-    addMsg('bot', "Ask me anything about what you've logged — patterns, gaps, diaper counts, how today compares to usual.");
+    const g = "Ask me anything about what you've logged — patterns, gaps, diaper counts, how today compares to usual.";
+    addMsg('bot', g);
+    renderStarters(true);
+    if(spoken) speak(g, startListening);
   }
-  renderStarters(true);
 }
 
 document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
@@ -1689,8 +1705,7 @@ function startChat(){
 
 document.getElementById('chooseVoice').onclick = () => {
   startChat();
-  greet();
-  if(handsFree) setTimeout(startListening, 400);
+  greet(true);
 };
 document.getElementById('chooseForm').onclick = () => {
   collected = {}; awaitingConfirmation = false; history = [];
@@ -1726,21 +1741,6 @@ function resetChat(){
 let trendDays = 14;
 let trendData = null;
 
-function spark(values, color){
-  if(!values.length) return '';
-  const W = 130, H = 30, max = Math.max(1, ...values);
-  const step = values.length > 1 ? W / (values.length - 1) : W;
-  const pts = values.map((v,i) => [i*step, H - (v/max)*(H-3) - 1.5]);
-  const line = pts.map((p,i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const area = line + ' L' + W + ' ' + H + ' L0 ' + H + ' Z';
-  const last = pts[pts.length-1];
-  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" height="30">' +
-    '<path d="'+area+'" fill="'+color+'" opacity=".14"/>' +
-    '<path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="2" ' +
-    'stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
-    '<circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="2.6" fill="'+color+'"/></svg>';
-}
-
 function avg(a){ return a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0; }
 function fmtMin(m){
   m = Math.round(m);
@@ -1752,11 +1752,79 @@ function hourLabel(h){
   const s = h % 12 === 0 ? 12 : h % 12;
   return s + (h < 12 ? 'am' : 'pm');
 }
+function dayLabel(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-US',{day:'numeric',timeZone:'UTC'});
+}
 
-function metric(value, label, detail, values, color){
-  return '<div class="metric"><span class="mv">'+value+'</span><span class="ml">'+label+'</span>' +
-    (detail ? '<span class="md">'+detail+'</span>' : '') +
-    (values ? spark(values, color) : '') + '</div>';
+/* Direction of travel: second half of the window vs the first. This is the
+   thing a daily snapshot can never tell you. */
+function trendDelta(vals){
+  const nz = vals.filter(v => v > 0);
+  if(nz.length < 4) return null;
+  const h = Math.floor(vals.length/2);
+  const a = avg(vals.slice(0,h)), b = avg(vals.slice(h));
+  if(!a) return null;
+  return Math.round(((b-a)/a)*100);
+}
+function deltaTag(d, invert){
+  if(d === null || Math.abs(d) < 5) return '<span class="delta flat">holding steady</span>';
+  const up = d > 0;
+  const good = invert ? !up : up;
+  return '<span class="delta '+(good?'up':'down')+'">'+(up?'\u2191':'\u2193')+' '+Math.abs(d)+'% '+
+         (up?'higher':'lower')+' than earlier</span>';
+}
+
+/* A real chart: gridlines, an average reference, day labels and hover values. */
+function chartBars(vals, labels, color, fmt, opts){
+  opts = opts || {};
+  const W = 340, H = 128, PT = 12, PB = 20, PL = 30;
+  const max = Math.max(1, ...vals);
+  const n = vals.length;
+  const iw = W - PL - 6;
+  const bw = iw / n;
+  const mean = avg(vals);
+  const y = v => PT + (1 - v/max) * (H - PT - PB);
+
+  let bars = '';
+  vals.forEach((v,i) => {
+    const bh = Math.max(v > 0 ? 2 : 0, (v/max) * (H - PT - PB));
+    const x = PL + i*bw + bw*0.16;
+    const w = bw*0.68;
+    const isLast = i === n-1;
+    bars += '<rect x="'+x.toFixed(1)+'" y="'+(H-PB-bh).toFixed(1)+'" width="'+w.toFixed(1)+
+            '" height="'+bh.toFixed(1)+'" rx="2" fill="'+color+'" opacity="'+(isLast?1:0.62)+'">'+
+            '<title>'+labels[i]+': '+fmt(v)+'</title></rect>';
+  });
+
+  // day ticks, thinned so they never collide
+  const step = Math.ceil(n/6);
+  let ticks = '';
+  labels.forEach((l,i) => {
+    if(i % step === 0 || i === n-1){
+      ticks += '<text class="ax" x="'+(PL + i*bw + bw/2).toFixed(1)+'" y="'+(H-6)+
+               '" text-anchor="middle">'+dayLabel(l)+'</text>';
+    }
+  });
+
+  const meanY = y(mean);
+  return '<svg viewBox="0 0 '+W+' '+H+'" class="chart">' +
+    '<line class="grid" x1="'+PL+'" y1="'+PT+'" x2="'+W+'" y2="'+PT+'"/>' +
+    '<line class="grid" x1="'+PL+'" y1="'+(H-PB)+'" x2="'+W+'" y2="'+(H-PB)+'"/>' +
+    '<text class="ax" x="'+(PL-5)+'" y="'+(PT+4)+'" text-anchor="end">'+fmt(max)+'</text>' +
+    '<text class="ax" x="'+(PL-5)+'" y="'+(H-PB)+'" text-anchor="end">0</text>' +
+    bars +
+    '<line class="mean" x1="'+PL+'" y1="'+meanY.toFixed(1)+'" x2="'+W+'" y2="'+meanY.toFixed(1)+'"/>' +
+    '<text class="ax mean-lbl" x="'+W+'" y="'+(meanY-4).toFixed(1)+'" text-anchor="end">avg '+fmt(mean)+'</text>' +
+    ticks + '</svg>';
+}
+
+/* One block: a window-scoped headline, the direction, then the chart. */
+function trendBlock(title, headline, sub, delta, vals, labels, color, fmt, invert){
+  return '<div class="tblock">' +
+    '<div class="tb-head"><span class="tb-title">'+title+'</span>'+deltaTag(delta, invert)+'</div>' +
+    '<div class="tb-value">'+headline+'<span class="tb-sub">'+sub+'</span></div>' +
+    chartBars(vals, labels, color, fmt) + '</div>';
 }
 
 function renderRhythm(d){
@@ -1767,7 +1835,6 @@ function renderRhythm(d){
       const slp = d.sleep_grid[i][h];
       let bg = 'var(--line-soft)', title = '';
       if(slp > 0){
-        // opacity scales with how much of the hour was spent asleep
         const frac = Math.min(1, slp / 60);
         bg = 'color-mix(in srgb, var(--plum) ' + Math.round(25 + frac*65) + '%, var(--card))';
         title = Math.round(slp) + ' min asleep';
@@ -1790,11 +1857,48 @@ function renderRhythm(d){
     '<div class="hrs"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>';
 }
 
+/* Feeds by hour across the whole window - shows the routine, not one day. */
+function renderHourChart(d){
+  const totals = new Array(24).fill(0);
+  d.feed_grid.forEach(row => row.forEach((v,h) => totals[h] += v));
+  const max = Math.max(1, ...totals);
+  const W = 340, H = 110, PB = 18, PT = 8;
+  let bars = '';
+  totals.forEach((v,h) => {
+    const bh = (v/max) * (H-PT-PB);
+    const bw = W/24;
+    const night = (h >= 22 || h < 6);
+    bars += '<rect x="'+(h*bw + bw*0.18).toFixed(1)+'" y="'+(H-PB-bh).toFixed(1)+
+            '" width="'+(bw*0.64).toFixed(1)+'" height="'+Math.max(v?2:0,bh).toFixed(1)+
+            '" rx="2" fill="'+(night?'var(--plum)':'var(--blush)')+'">'+
+            '<title>'+hourLabel(h)+': '+v+(v===1?' feed':' feeds')+'</title></rect>';
+  });
+  let ticks = '';
+  [0,6,12,18,23].forEach(h => {
+    ticks += '<text class="ax" x="'+((h+0.5)*(W/24)).toFixed(1)+'" y="'+(H-5)+
+             '" text-anchor="middle">'+hourLabel(h)+'</text>';
+  });
+  const peak = totals.indexOf(max);
+  document.getElementById('hourChart').innerHTML =
+    '<div class="tb-value">'+hourLabel(peak)+'<span class="tb-sub">busiest hour \u00b7 '+
+    max+(max===1?' feed':' feeds')+' logged then</span></div>' +
+    '<svg viewBox="0 0 '+W+' '+H+'" class="chart">' +
+    '<line class="grid" x1="0" y1="'+(H-PB)+'" x2="'+W+'" y2="'+(H-PB)+'"/>' + bars + ticks + '</svg>' +
+    '<div class="legend" style="margin-top:8px;">' +
+    '<span><i style="background:var(--blush)"></i>Daytime</span>' +
+    '<span><i style="background:var(--plum)"></i>10pm \u2013 6am</span></div>';
+}
+
 function renderTrends(d){
   trendData = d;
   renderRhythm(d);
+  renderHourChart(d);
 
   const D = d.days;
+  const L = D.map(x => x.date);
+  const nDays = D.length;
+  const per = v => (v).toFixed(1);
+
   const feeds   = D.map(x => x.feeds);
   const intake  = D.map(x => x.intake_ml);
   const nursing = D.map(x => x.nursing_min);
@@ -1806,82 +1910,79 @@ function renderTrends(d){
   const pumped  = D.map(x => x.pumped_ml);
   const pumpMin = D.map(x => x.pump_min);
 
-  const today = D[D.length-1] || {};
-  const prior = D.slice(0, -1);
-  const pAvg = f => avg(prior.map(f));
+  // ---- Feeding ----
+  document.getElementById('feedCharts').innerHTML =
+    trendBlock('Feeds a day', per(avg(feeds)), 'average over ' + nDays + ' days',
+               trendDelta(feeds), feeds, L, 'var(--blush)', v => Math.round(v)) +
+    trendBlock('Bottle intake', Math.round(avg(intake)) + ' ml', 'average a day',
+               trendDelta(intake), intake, L, 'var(--gold)', v => Math.round(v)+'ml') +
+    (nursing.some(v=>v>0)
+      ? trendBlock('Time at the breast', fmtMin(avg(nursing)), 'average a day',
+                   trendDelta(nursing), nursing, L, 'var(--blush-deep)', fmtMin)
+      : '') +
+    '<div class="tb-foot">Typical gap between feeds: <b>' +
+      (d.avg_gap_min ? fmtMin(d.avg_gap_min) : '\u2014') + '</b></div>';
 
-  document.getElementById('metricGrid').innerHTML =
-    metric(today.feeds || 0, 'feeds today',
-           prior.length ? 'usually ' + pAvg(x=>x.feeds).toFixed(1) : '',
-           feeds, 'var(--blush)') +
-    metric(d.avg_gap_min ? fmtMin(d.avg_gap_min) : '\u2014', 'typical gap',
-           d.busiest_hour !== null ? 'busiest around ' + hourLabel(d.busiest_hour) : '',
-           null) +
-    metric((today.intake_ml || 0) + ' ml', 'bottle today',
-           prior.length ? 'usually ' + Math.round(pAvg(x=>x.intake_ml)) + ' ml' : '',
-           intake, 'var(--gold)') +
-    metric(fmtMin(today.nursing_min || 0), 'nursed today',
-           prior.length ? 'usually ' + fmtMin(pAvg(x=>x.nursing_min)) : '',
-           nursing, 'var(--blush)') +
-    metric(today.wet || 0, 'wet nappies',
-           prior.length ? 'usually ' + pAvg(x=>x.wet).toFixed(1) : '',
-           wet, 'var(--plum)') +
-    metric(d.days_since_poop === null ? '\u2014'
-             : d.days_since_poop === 0 ? 'Today' : d.days_since_poop + 'd ago',
-           'last dirty nappy',
-           prior.length ? 'usually ' + pAvg(x=>x.dirty).toFixed(1) + '/day' : '',
-           dirty, 'var(--gold)');
-
+  // ---- Sleep ----
   const anySleep = sleep.some(v => v > 0);
-  document.getElementById('sleepCard').style.display = anySleep ? 'block' : 'none';
+  document.getElementById('sleepTrendCard').style.display = anySleep ? 'block' : 'none';
   if(anySleep){
-    document.getElementById('sleepGrid').innerHTML =
-      metric(fmtMin(today.sleep_min || 0), 'slept today',
-             prior.length ? 'usually ' + fmtMin(pAvg(x=>x.sleep_min)) : '',
-             sleep, 'var(--plum)') +
-      metric(fmtMin(Math.max(...longest)), 'longest stretch',
-             'best in this window', longest, 'var(--mint)') +
-      metric(fmtMin(today.night_sleep_min || 0), 'night sleep',
-             '10pm \u2013 6am', night, 'var(--plum)') +
-      metric(fmtMin(avg(sleep)), 'daily average',
-             'across ' + D.length + ' days', null);
+    document.getElementById('sleepCharts').innerHTML =
+      trendBlock('Longest stretch', fmtMin(avg(longest)), 'average best stretch a day',
+                 trendDelta(longest), longest, L, 'var(--mint)', fmtMin) +
+      trendBlock('Total sleep', fmtMin(avg(sleep)), 'average a day',
+                 trendDelta(sleep), sleep, L, 'var(--plum)', fmtMin) +
+      trendBlock('Night sleep', fmtMin(avg(night)), '10pm \u2013 6am, average a day',
+                 trendDelta(night), night, L, 'var(--plum-deep)', fmtMin) +
+      '<div class="tb-foot">Best single stretch in this window: <b>' +
+        fmtMin(Math.max(...longest)) + '</b></div>';
   }
 
-  // Side balance
+  // ---- Nappies ----
+  document.getElementById('diaperCharts').innerHTML =
+    trendBlock('Wet nappies', per(avg(wet)), 'average a day',
+               trendDelta(wet), wet, L, 'var(--plum)', v => Math.round(v)) +
+    trendBlock('Dirty nappies', per(avg(dirty)), 'average a day',
+               trendDelta(dirty), dirty, L, 'var(--gold)', v => Math.round(v)) +
+    '<div class="tb-foot">Last dirty nappy: <b>' +
+      (d.days_since_poop === null ? '\u2014'
+        : d.days_since_poop === 0 ? 'today' : d.days_since_poop + ' days ago') + '</b></div>';
+
+  // ---- Pumping ----
+  const anyPump = pumped.some(v=>v>0) || pumpMin.some(v=>v>0);
+  document.getElementById('pumpTrendCard').style.display = anyPump ? 'block' : 'none';
+  if(anyPump){
+    const totMl = pumped.reduce((a,b)=>a+b,0), totMin = pumpMin.reduce((a,b)=>a+b,0);
+    const rate = D.map(x => x.pump_min > 0 ? Math.round(x.pumped_ml / (x.pump_min/60)) : 0);
+    document.getElementById('pumpCharts').innerHTML =
+      trendBlock('Output', Math.round(avg(pumped)) + ' ml', 'average a day',
+                 trendDelta(pumped), pumped, L, 'var(--mint)', v => Math.round(v)+'ml') +
+      trendBlock('Time pumping', fmtMin(avg(pumpMin)), 'average a day',
+                 trendDelta(pumpMin), pumpMin, L, 'var(--plum)', fmtMin) +
+      trendBlock('Per hour of pumping', (totMin ? Math.round(totMl/(totMin/60)) : 0) + ' ml',
+                 'how efficient sessions are', trendDelta(rate), rate, L,
+                 'var(--gold)', v => Math.round(v)+'ml') +
+      '<div class="tb-foot">Total pumped over ' + nDays + ' days: <b>' + totMl + ' ml</b></div>';
+  }
+
+  // ---- Side balance ----
   const sl = d.side_totals.left_min, sr = d.side_totals.right_min;
   const pl = d.pump_side_totals.left_min, pr = d.pump_side_totals.right_min;
-  const bal = (L, R, label) => {
-    const tot = L + R;
+  const bal = (Lm, Rm, label) => {
+    const tot = Lm + Rm;
     if(!tot) return '';
-    const lp = Math.round((L/tot)*100);
-    return '<div style="font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-top:12px;">'+label+'</div>' +
+    const lp = Math.round((Lm/tot)*100);
+    const skew = Math.abs(lp - 50);
+    return '<div class="bal-label">'+label+'</div>' +
       '<div class="balance">' +
       '<div style="width:'+lp+'%;background:var(--blush)">'+(lp>14?'L '+lp+'%':'')+'</div>' +
       '<div style="width:'+(100-lp)+'%;background:var(--plum)">'+((100-lp)>14?'R '+(100-lp)+'%':'')+'</div></div>' +
-      '<div class="bal-note">'+fmtMin(L)+' left \u00b7 '+fmtMin(R)+' right</div>';
+      '<div class="bal-note">'+fmtMin(Lm)+' left \u00b7 '+fmtMin(Rm)+' right' +
+      (skew >= 15 ? ' \u00b7 leaning ' + (lp > 50 ? 'left' : 'right') : ' \u00b7 fairly even') + '</div>';
   };
   const balHtml = bal(sl, sr, 'Nursing') + bal(pl, pr, 'Pumping');
   document.getElementById('balanceCard').style.display = balHtml ? 'block' : 'none';
   document.getElementById('balanceBody').innerHTML = balHtml;
-
-  // Pumping
-  const anyPump = pumped.some(v=>v>0) || pumpMin.some(v=>v>0);
-  document.getElementById('pumpCard').style.display = anyPump ? 'block' : 'none';
-  if(anyPump){
-    const totMl = pumped.reduce((a,b)=>a+b,0);
-    const totMin = pumpMin.reduce((a,b)=>a+b,0);
-    document.getElementById('pumpGrid').innerHTML =
-      metric((today.pumped_ml || 0) + ' ml', 'pumped today',
-             prior.length ? 'usually ' + Math.round(pAvg(x=>x.pumped_ml)) + ' ml' : '',
-             pumped, 'var(--mint)') +
-      metric(fmtMin(today.pump_min || 0), 'time pumping today',
-             prior.length ? 'usually ' + fmtMin(pAvg(x=>x.pump_min)) : '',
-             pumpMin, 'var(--plum)') +
-      metric(totMin ? Math.round(totMl / (totMin/60)) + ' ml' : '\u2014', 'per hour pumping',
-             'across the window', null) +
-      metric(totMl + ' ml', 'total pumped',
-             'over ' + D.length + ' days', null);
-  }
 }
 
 async function loadTrends(){
@@ -1893,7 +1994,7 @@ async function loadTrends(){
     if(d.status !== 'success') throw new Error(d.message);
     if(!d.has_data){
       r.innerHTML = '<div class="empty"><strong>Not enough logged yet</strong>A few days of entries and the patterns will show up here.</div>';
-      ['metricGrid','sleepGrid','pumpGrid','balanceBody'].forEach(id => {
+      ['hourChart','feedCharts','sleepCharts','diaperCharts','pumpCharts','balanceBody'].forEach(id => {
         const el = document.getElementById(id); if(el) el.innerHTML = '';
       });
       return;
@@ -2986,7 +3087,6 @@ document.getElementById('manualBtn').onclick = () => {
 /* ============ Boot ============ */
 initTheme();
 initMute();
-initVoice();
 initHandsFree();
 initTimers();
 renderQueueBadge();
