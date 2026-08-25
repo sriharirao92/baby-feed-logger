@@ -97,12 +97,12 @@
   }
 
   /* ---------- Signature: the elapsed ring ---------- */
-  .pulse-card{ text-align:center; padding: 24px 20px 20px; position:relative; overflow:hidden; }
+  .pulse-card{ text-align:center; padding: 18px 20px 20px; position:relative; overflow:hidden; }
   .pulse-card::before{
     content:''; position:absolute; inset:0; background:var(--glow); pointer-events:none;
   }
   .pulse-card > *{ position:relative; }
-  .ring-wrap{ position:relative; width:180px; height:180px; margin: 0 auto 4px; }
+  .ring-wrap{ position:relative; width:164px; height:164px; margin: 4px auto 0; }
   .ring-wrap svg{ transform: rotate(-90deg); display:block; }
   .ring-center{
     position:absolute; inset:0; display:flex; flex-direction:column;
@@ -110,7 +110,7 @@
   }
   .elapsed{
     font-family:'Fraunces', Georgia, serif; font-weight:600;
-    font-size:37px; line-height:1; letter-spacing:-0.02em;
+    font-size:34px; line-height:1; letter-spacing:-0.02em;
   }
   .elapsed .unit{ font-size:19px; font-weight:500; color:var(--ink-soft); margin-left:1px; }
   .elapsed-lbl{
@@ -127,13 +127,13 @@
   .ring-fill{ transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1), stroke .9s ease; }
 
   .daily-strip{
-    display:flex; justify-content:center; gap:0;
-    margin-top:16px; padding-top:16px; border-top:1px solid var(--line-soft);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px 6px;
+    margin-top:18px; padding-top:16px; border-top:1px solid var(--line-soft);
   }
-  .daily-stat{ flex:1; padding: 0 4px; }
-  .daily-stat + .daily-stat{ border-left:1px solid var(--line-soft); }
+  .daily-stat{ padding:0 2px; }
   .daily-stat .n{
-    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:19px; display:block; line-height:1.15;
+    font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:20px; display:block;
+    line-height:1.15; white-space:nowrap;
   }
   .daily-stat.empty-stat .n, .daily-stat.empty-stat .l{ color:var(--ink-faint); opacity:.55; }
   .daily-stat .l{
@@ -206,6 +206,7 @@
   @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
   .tool-time{ font-family:'Fraunces', Georgia, serif; font-size:15px; color:var(--ink); font-variant-numeric:tabular-nums; }
 
+  .card-split{ height:1px; background:var(--line-soft); margin:16px 0 15px; }
   .timer-panel{
     max-height:0; opacity:0; overflow:hidden;
     transition: max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease, margin-top .3s ease;
@@ -244,7 +245,10 @@
   .timer-actions .btn{ flex:1; padding:13px; }
 
   /* ---------- Date navigation ---------- */
-  .date-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .date-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line-soft);
+  }
   .date-label{
     font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:16.5px;
     display:flex; align-items:center; gap:7px; cursor:pointer;
@@ -260,8 +264,12 @@
   .nav-arrow:not(:disabled):active{ background:var(--line-soft); }
 
   /* ---------- Timeline ---------- */
+  .tl-head{
+    display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;
+  }
+  .tl-head #tlCount{ font-size:11.5px; color:var(--ink-faint); font-weight:600; }
   .entry{
-    display:flex; gap:11px; padding:14px 10px 14px 4px; margin: 0 -6px;
+    display:flex; gap:9px; padding:13px 4px 13px 2px; margin: 0 -4px;
     border-radius:14px; cursor:pointer; position:relative;
   }
   .entry:active{ background:var(--line-soft); }
@@ -279,13 +287,14 @@
     box-shadow: 0 0 0 3px var(--card);
   }
   .entry:first-child .entry-rail .dot{ background:var(--plum); }
+  .entry.sleep-entry .entry-rail .dot{ background:var(--gold); }
   .entry-time{
-    font-variant-numeric: tabular-nums;
-    font-size:12.5px; font-weight:600; color:var(--ink-soft);
-    width:60px; flex-shrink:0; padding-top:1px; letter-spacing:-0.01em;
+    font-variant-numeric: tabular-nums; white-space:nowrap;
+    font-size:11.5px; font-weight:600; color:var(--ink-soft);
+    width:57px; flex-shrink:0; padding-top:2px; letter-spacing:-0.03em;
   }
   .entry-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
-  .entry-line{ display:flex; align-items:center; gap:7px; font-size:13.5px; line-height:1.35; }
+  .entry-line{ display:flex; align-items:flex-start; gap:7px; font-size:13.5px; line-height:1.4; }
   .entry-line .glyph{ flex-shrink:0; width:15px; display:flex; justify-content:center; }
   .entry-note{ font-size:12.5px; color:var(--ink-soft); font-style:italic; line-height:1.4; }
   .lvl{
@@ -295,7 +304,7 @@
   .lvl.Light { background:color-mix(in srgb, var(--gold) 18%, var(--card)); color:var(--gold); }
   .lvl.Medium{ background:color-mix(in srgb, var(--blush) 18%, var(--card)); color:var(--blush-deep); }
   .lvl.Heavy { background:color-mix(in srgb, var(--plum) 20%, var(--card)); color:var(--plum-deep); }
-  .edit-hint{ color:var(--ink-faint); font-size:15px; align-self:flex-start; padding-top:1px; flex-shrink:0; }
+  .edit-hint{ color:var(--ink-faint); font-size:13px; align-self:flex-start; padding-top:2px; flex-shrink:0; opacity:.6; }
 
   .empty{
     text-align:center; padding: 26px 16px 20px; color:var(--ink-soft);
@@ -345,15 +354,15 @@
   .choice{ display:flex; gap:10px; margin-bottom:4px; }
   .choice button{
     flex:1; border:1px solid var(--line); background:var(--bg); border-radius:17px;
-    padding:20px 10px; cursor:pointer; display:flex; flex-direction:column;
-    align-items:center; gap:9px; font-family:'Inter'; font-size:13.5px; font-weight:700;
+    padding:16px 10px; cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:7px; font-family:'Inter'; font-size:13.5px; font-weight:700;
     color:var(--ink); transition: border-color .22s ease, transform .16s ease;
   }
   .choice button:active{ transform:scale(.97); }
   .choice button .sub{ font-size:11px; font-weight:500; color:var(--ink-soft); }
   .choice button.voice{ border-color:color-mix(in srgb, var(--blush) 45%, var(--card)); }
   .choice .ic{
-    width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   }
   .choice .ic.a{ background:var(--blush); }
   .choice .ic.b{ background:color-mix(in srgb, var(--plum) 20%, var(--card)); }
@@ -416,7 +425,12 @@
     70%{ box-shadow:0 0 0 20px rgba(201,115,137,0); }
     100%{ box-shadow:0 0 0 0 rgba(201,115,137,0); }
   }
-  .mic-status{ font-size:12.5px; color:var(--ink-faint); }
+  .level{ display:flex; align-items:flex-end; gap:3px; height:19px; }
+  .level i{
+    width:3px; border-radius:99px; background:var(--blush);
+    transition: height .08s linear, opacity .08s linear;
+  }
+  .mic-status{ font-size:12.5px; color:var(--ink-faint); text-align:center; max-width:280px; }
 
   .type-row{ display:flex; gap:8px; margin-top:14px; }
   .type-row input{
@@ -533,6 +547,10 @@
   .cal-day.sel{ background:var(--plum); color:var(--seg-on-tx); font-weight:700; }
   .cal-day.blank{ visibility:hidden; }
 
+  .sleep-dur{
+    font-size:11.5px; color:var(--mint); font-weight:600; text-align:center; margin-top:9px; min-height:16px;
+  }
+  .tp-row{ display:flex; gap:8px; }
   .now-btn{
     width:100%; margin-top:10px; border:1px solid var(--line); background:var(--bg);
     color:var(--ink-soft); border-radius:11px; padding:9px;
@@ -597,6 +615,19 @@
   .sheet-toast{ text-align:center; font-size:13px; font-weight:600; margin-top:11px; min-height:17px; }
 
   /* ---------- Setup ---------- */
+  .engine-tag{
+    font-size:11px; margin-top:9px; line-height:1.45; padding:8px 10px;
+    border-radius:9px; background:var(--bg); color:var(--ink-soft);
+    border:1px solid var(--line); word-break:break-word;
+  }
+  .engine-tag.good{ color:var(--mint); border-color:color-mix(in srgb, var(--mint) 35%, var(--card)); }
+  .engine-tag.bad{ color:var(--blush-deep); border-color:color-mix(in srgb, var(--blush) 35%, var(--card)); }
+  .voice-row{ display:flex; gap:5px; flex-wrap:wrap; }
+  .voice-row button{
+    flex:1; min-width:56px; border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    border-radius:10px; padding:8px 4px; font-family:'Inter'; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .voice-row button.on{ background:var(--blush); border-color:var(--blush); color:var(--seg-on-tx); }
   .setup-body{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
   .setup-body input{
     width:100%; margin-top:9px; border:1px solid var(--line); border-radius:11px;
@@ -644,7 +675,19 @@
       Paste the web app link from your Apps Script deployment, plus the secret you set in the script.
       <input id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
       <input id="secretInput" placeholder="Secret" autocomplete="off">
-      <div style="display:flex; gap:9px; margin-top:12px;">
+      <div style="margin-top:16px; padding-top:15px; border-top:1px solid var(--line-soft);">
+        <div style="font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:8px;">Spoken voice</div>
+        <div class="voice-row" id="voiceRow">
+          <button type="button" data-v="tara">Tara</button>
+          <button type="button" data-v="leah">Leah</button>
+          <button type="button" data-v="jess">Jess</button>
+          <button type="button" data-v="mia">Mia</button>
+          <button type="button" data-v="zoe">Zoe</button>
+        </div>
+        <button type="button" class="now-btn" id="tryVoiceBtn" style="margin-top:9px;">Hear this voice</button>
+        <div class="engine-tag" id="engineTag">Voice engine: not tested yet</div>
+      </div>
+      <div style="display:flex; gap:9px; margin-top:14px;">
         <button class="btn ghost" id="cancelSetupBtn" style="flex:0 0 auto; padding:12px 16px;">Cancel</button>
         <button class="btn primary" id="saveSetupBtn" style="padding:12px;">Save connection</button>
       </div>
@@ -652,8 +695,19 @@
   </div>
 
   <div class="card pulse-card" id="pulseCard">
+    <div class="date-nav">
+      <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
+      <label class="date-label">
+        <span id="dateLabel">Today</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round">
+          <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
+        </svg>
+        <input type="date" id="datePicker">
+      </label>
+      <button class="nav-arrow" id="nextDay" aria-label="Next day">›</button>
+    </div>
     <div class="ring-wrap">
-      <svg width="180" height="180" viewBox="0 0 180 180">
+      <svg width="164" height="164" viewBox="0 0 180 180">
         <circle class="ring-track" cx="90" cy="90" r="78" fill="none" stroke-width="11"/>
         <g class="ring-ticks" id="ringTicks"></g>
         <circle class="ring-fill" id="ringFill" cx="90" cy="90" r="78" fill="none"
@@ -742,10 +796,16 @@
         <button class="btn ghost" id="sleepCancel" style="display:none;">Cancel</button>
         <button class="btn primary" id="sleepToggle">She's asleep</button>
       </div>
+      <button class="manual-btn" id="sleepManualBtn" style="margin-top:9px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>
+        </svg>
+        Enter a sleep that already happened
+      </button>
     </div>
-  </div>
 
-  <div class="card">
+    <div class="card-split"></div>
+
     <div class="mode-toggle" id="modeToggle">
       <button data-mode="log" class="on">Log a feed</button>
       <button data-mode="ask">Ask about data</button>
@@ -799,6 +859,7 @@
           <path d="M19 11a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 006 6.93V20H9a1 1 0 100 2h6a1 1 0 100-2h-2v-2.07A7 7 0 0019 11z"/>
         </svg>
       </button>
+      <div class="level" id="level"></div>
       <div class="mic-status" id="micStatus">Tap to talk</div>
     </div>
     <div class="type-row">
@@ -814,17 +875,7 @@
     </div>
   </div>
   <div class="card">
-    <div class="date-nav">
-      <button class="nav-arrow" id="prevDay" aria-label="Previous day">‹</button>
-      <label class="date-label">
-        <span id="dateLabel">Today</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round">
-          <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>
-        </svg>
-        <input type="date" id="datePicker">
-      </label>
-      <button class="nav-arrow" id="nextDay" aria-label="Next day">›</button>
-    </div>
+    <div class="tl-head"><span class="sec-title" id="tlTitle">Entries</span><span id="tlCount"></span></div>
     <div id="timeline"><div class="empty">Loading…</div></div>
   </div>
 
@@ -904,20 +955,7 @@
       <div class="field">
         <label>Time</label>
         <input type="hidden" data-k="time" id="timeField">
-        <button type="button" class="time-display" id="timeDisplay">
-          <span id="timeText">8:15 AM</span>
-          <span class="caret">⌄</span>
-        </button>
-        <div class="clock-pop" id="clockPop">
-          <div class="wheels">
-            <div class="wheel-band"></div>
-            <div class="wheel" id="wheelHour"></div>
-            <div class="wheel" id="wheelMin"></div>
-            <div class="wheel" id="wheelMer"></div>
-          </div>
-          <div class="wheel-lbls"><span>Hour</span><span>Min</span><span>AM/PM</span></div>
-          <button type="button" class="now-btn" id="nowBtn">Set to right now</button>
-        </div>
+        <div id="timeMount"></div>
       </div>
     </div>
 
@@ -934,11 +972,11 @@
       <div class="grid">
         <div class="field"><label>Formula (ml)</label><input type="number" min="0" data-k="formula"></div>
         <div class="field"><label>Breast milk (ml)</label><input type="number" min="0" data-k="breast_milk"></div>
-        <div class="field"><label>Pumped (ml)</label><input type="number" min="0" data-k="pump_output"></div>
+        <div class="field wide"><label>Pumped (ml)</label><input type="number" min="0" data-k="pump_output"></div>
         <div class="field"><label>Pumped left (min)</label><input type="number" min="0" data-k="pump_left"></div>
         <div class="field"><label>Pumped right (min)</label><input type="number" min="0" data-k="pump_right"></div>
         <div class="field wide">
-          <label>Pumping mode</label>
+          <label>Pumped one side at a time, or both together?</label>
           <div class="seg" data-seg="pump_mode"></div>
         </div>
       </div>
@@ -955,6 +993,21 @@
         <div class="seg" data-seg="poop"></div>
       </div>
       <div class="field"><label>Colour of dirty diaper</label><input type="text" data-k="poop_color" placeholder="e.g. yellow"></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fgroup-title">Sleep</div>
+      <div class="field" style="margin-bottom:11px;">
+        <label>Fell asleep</label>
+        <input type="hidden" data-k="sleep_start" id="sleepStartField">
+        <div id="sleepStartMount"></div>
+      </div>
+      <div class="field">
+        <label>Woke up</label>
+        <input type="hidden" data-k="sleep_end" id="sleepEndField">
+        <div id="sleepEndMount"></div>
+      </div>
+      <div class="sleep-dur" id="sleepDur"></div>
     </div>
 
     <div class="fgroup">
@@ -987,6 +1040,7 @@ const CAP_LABELS = {
 let webhookUrl = null, secret = null;
 let collected = {}, awaitingConfirmation = false;
 let history = []; // real turn-by-turn history, so the model knows what it asked
+let currentSection = 'when'; // primes speech recognition for the expected answer
 let mode = 'log';
 let handsFree = false;
 let lastSavedRow = null;
@@ -1018,11 +1072,6 @@ async function holdScreen(on){
   }catch(e){}
 }
 
-function startListening(){
-  if(!recognition || recognizing) return;
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  try{ recognition.start(); }catch(e){}
-}
 let viewDate = todayStr();
 let entries = [];
 let editingRow = null;
@@ -1135,7 +1184,9 @@ function renderPulse(){
     stat(bottled ? bottled+'ml' : '—', 'bottle') +
     stat(pumped ? pumped+'ml' : '—', 'pumped') +
     stat(diapers || '—', plural(diapers,'diaper','diapers')) +
-    stat(sleepMin ? (sleepMin>=60 ? Math.floor(sleepMin/60)+'h '+(sleepMin%60)+'m' : sleepMin+'m') : '—', 'slept');
+    stat(sleepMin ? (sleepMin>=60
+          ? (sleepMin%60 ? Math.floor(sleepMin/60)+'h '+(sleepMin%60)+'m' : Math.floor(sleepMin/60)+'h')
+          : sleepMin+'m') : '—', 'slept');
 }
 function stat(n,l){
   const blank = (n === '\u2014' || n === 0 || n === '0');
@@ -1156,6 +1207,9 @@ const GLYPH = {
 
 function renderTimeline(){
   const wrap = document.getElementById('timeline');
+  const cnt = document.getElementById('tlCount');
+  if(cnt) cnt.textContent = entries.length
+    ? entries.length + (entries.length === 1 ? ' entry' : ' entries') : '';
   if(!entries.length){
     wrap.innerHTML = '<div class="empty"><strong>Nothing logged '+(viewDate===todayStr()?'yet today':'that day')+'</strong>'+
       (viewDate===todayStr() ? 'Tap the mic below and tell me about a feed.' : 'Use the arrows to look at another day.')+'</div>';
@@ -1179,7 +1233,7 @@ function renderTimeline(){
       const bits = [];
       if(e.pump_output) bits.push(e.pump_output+' ml pumped');
       if(e.pump_mode === 'Both' && (e.pump_left || e.pump_right)){
-        bits.push('over ' + Math.max(e.pump_left||0, e.pump_right||0) + ' min (both)');
+        bits.push('\u00b7 ' + Math.max(e.pump_left||0, e.pump_right||0) + ' min, both');
       } else if(e.pump_left || e.pump_right){
         const sides = [];
         if(e.pump_left) sides.push(e.pump_left+' min left');
@@ -1208,7 +1262,9 @@ function renderTimeline(){
     if(!lines.length) lines.push(line('', '<span style="color:var(--ink-faint)">Nothing recorded</span>'));
     if(e.notes) lines.push('<div class="entry-note">'+esc(e.notes)+'</div>');
 
-    return '<div class="entry" data-i="'+i+'">'+
+    const isSleep = !!(e.sleep_start && e.sleep_end) &&
+                    !NUM_KEYS.some(k => e[k] > 0);
+    return '<div class="entry'+(isSleep?' sleep-entry':'')+'" data-i="'+i+'">'+
       '<div class="entry-time">'+esc(e.time)+'</div>'+
       '<div class="entry-rail"><span class="dot"></span></div>'+
       '<div class="entry-body">'+lines.join('')+'</div>'+
@@ -1293,6 +1349,7 @@ document.getElementById('themeBtn').onclick = () => applyTheme(theme === 'dark' 
  */
 let muted = false;
 let chosenVoice = null;
+let ttsVoice = 'tara';   // Orpheus voice; see the picker in settings
 
 const VOICE_PREFS = [
   /google (uk|us) english female/i,
@@ -1320,35 +1377,142 @@ if(window.speechSynthesis){
   speechSynthesis.onvoiceschanged = pickVoice; // voices load async on most browsers
 }
 
-function speak(text, onEnd){
-  if(muted || !window.speechSynthesis){ if(onEnd) setTimeout(onEnd, 250); return; }
+/* Browser speech, kept as the fallback path. */
+function speakBrowser(text, onEnd){
+  if(!window.speechSynthesis){ if(onEnd) setTimeout(onEnd, 250); return; }
   try{
-    speechSynthesis.cancel(); // never let two replies overlap
+    speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if(chosenVoice) u.voice = chosenVoice;
-    u.rate = 0.94;   // unhurried
-    u.pitch = 1.06;  // a touch warmer without going squeaky
-    u.volume = 0.85; // gentle at 3am
+    u.rate = 0.94; u.pitch = 1.06; u.volume = 0.85;
     if(onEnd){
       let fired = false;
       const go = () => { if(!fired){ fired = true; onEnd(); } };
-      u.onend = go;
-      u.onerror = go;
-      setTimeout(go, 12000); // safety net if the engine never fires onend
+      u.onend = go; u.onerror = go;
+      setTimeout(go, 12000);
     }
     speechSynthesis.speak(u);
   }catch(e){ if(onEnd) setTimeout(onEnd, 250); }
 }
 
+/* Orpheus voice, with an in-memory cache. The question bank is small and
+   repeats constantly, so after the first time each line plays instantly. */
+const ttsCache = new Map();
+const TTS_CACHE_MAX = 40;
+let ttsAudio = null;
+let orpheusWorks = true;   // flips false after a failure, so we stop retrying
+let lastTtsError = null;
+let lastEngine = null;     // 'orpheus' | 'browser'
+
+function setEngineTag(){
+  const el = document.getElementById('engineTag');
+  if(!el) return;
+  if(lastEngine === 'orpheus'){
+    el.className = 'engine-tag good';
+    el.textContent = 'Voice engine: Orpheus \u2014 ' + ttsVoice + ' (the good one)';
+  } else if(lastEngine === 'browser'){
+    el.className = 'engine-tag bad';
+    el.textContent = 'Voice engine: browser fallback \u2014 all voices will sound the same. '
+      + (lastTtsError ? 'Orpheus said: ' + lastTtsError : 'Orpheus was unavailable.');
+  } else {
+    el.className = 'engine-tag';
+    el.textContent = 'Voice engine: not tested yet \u2014 tap "Hear this voice".';
+  }
+}
+
+function stopSpeaking(){
+  try{ if(ttsAudio){ ttsAudio.pause(); ttsAudio.currentTime = 0; } }catch(e){}
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+}
+
+async function speak(text, onEnd){
+  if(muted || !text){ if(onEnd) setTimeout(onEnd, 200); return; }
+  stopSpeaking();
+
+  if(!orpheusWorks || !webhookUrl || !secret){
+    lastEngine = 'browser'; setEngineTag();
+    return speakBrowser(text, onEnd);
+  }
+
+  const key = ttsVoice + '|' + text;
+  try{
+    let url = ttsCache.get(key);
+    if(!url){
+      const res = await api({ action:'speak', text, voice: ttsVoice });
+      if(res.status !== 'success') throw new Error(res.message || 'tts failed');
+      const bin = atob(res.audio);
+      const bytes = new Uint8Array(bin.length);
+      for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      url = URL.createObjectURL(new Blob([bytes], { type: res.mime || 'audio/wav' }));
+      if(ttsCache.size >= TTS_CACHE_MAX){
+        const oldest = ttsCache.keys().next().value;
+        try{ URL.revokeObjectURL(ttsCache.get(oldest)); }catch(e){}
+        ttsCache.delete(oldest);
+      }
+      ttsCache.set(key, url);
+    }
+
+    lastEngine = 'orpheus'; lastTtsError = null; setEngineTag();
+    ttsAudio = new Audio(url);
+    ttsAudio.volume = 0.95;
+    if(onEnd){
+      let fired = false;
+      const go = () => { if(!fired){ fired = true; onEnd(); } };
+      ttsAudio.onended = go;
+      ttsAudio.onerror = go;
+      setTimeout(go, 25000);
+    }
+    await ttsAudio.play();
+  }catch(e){
+    // One failure is enough - drop to browser speech for the rest of the session
+    orpheusWorks = false;
+    lastTtsError = (e.message || String(e)).substring(0, 220);
+    lastEngine = 'browser';
+    setEngineTag();
+    speakBrowser(text, onEnd);
+  }
+}
+
 function applyMute(m){
   muted = m;
-  if(muted && window.speechSynthesis) speechSynthesis.cancel();
+  if(muted) stopSpeaking();
   const btn = document.getElementById('muteBtn');
   btn.innerHTML = muted ? SPK_OFF : SPK_ON;
   btn.style.color = muted ? 'var(--ink-faint)' : 'var(--blush-deep)';
   btn.setAttribute('aria-label', muted ? 'Turn voice on' : 'Turn voice off');
   try{ localStorage.setItem('muted', muted ? '1' : '0'); }catch(e){}
 }
+function applyVoice(v){
+  ttsVoice = v;
+  orpheusWorks = true;   // a new pick deserves a fresh attempt
+  lastTtsError = null;
+  document.getElementById('voiceRow').querySelectorAll('button')
+    .forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  try{ localStorage.setItem('tts_voice', v); }catch(e){}
+}
+function initVoice(){
+  let saved = null;
+  try{ saved = localStorage.getItem('tts_voice'); }catch(e){}
+  applyVoice(saved || 'tara');
+  setEngineTag();
+}
+document.getElementById('voiceRow').querySelectorAll('button').forEach(b => {
+  b.onclick = () => applyVoice(b.dataset.v);
+});
+document.getElementById('tryVoiceBtn').onclick = async () => {
+  const btn = document.getElementById('tryVoiceBtn');
+  const was = muted;
+  muted = false;          // a preview should play even when muted
+  orpheusWorks = true;    // always give Orpheus a fresh attempt
+  lastTtsError = null;
+  btn.textContent = 'Loading\u2026';
+  await speak(SAMPLE_LINE, () => { btn.textContent = 'Hear this voice'; muted = was; });
+  setTimeout(() => { btn.textContent = 'Hear this voice'; muted = was; setEngineTag(); }, 1400);
+};
+
+// Written the way we want it delivered - warm, lifted, unhurried.
+const SAMPLE_LINE = "Hey, hi! I'm all ears. So, how did that feed go?";
+
 function initMute(){
   let saved = null;
   try{ saved = localStorage.getItem('muted'); }catch(e){}
@@ -1403,6 +1567,7 @@ function greet(){
     const g = "Hi! Let's get this logged. Is this feed for right now, or a different time?";
     addMsg('bot', g);
     history = [{role:'assistant', content:g}];
+    currentSection = 'when';
   } else {
     addMsg('bot', "Ask me anything about what you've logged — patterns, gaps, diaper counts, how today compares to usual.");
   }
@@ -1456,6 +1621,7 @@ async function processInput(text){
 
     collected = Object.assign({}, collected, data.fields || {});
     awaitingConfirmation = !!data.awaiting_confirmation;
+    if(data.section) currentSection = data.section;
     renderCaptured();
     const reply = data.reply || "Got that — anything else, or should I save it?";
     history.push({role:'assistant', content:reply});
@@ -1538,6 +1704,7 @@ function greetPump(elapsedMin){
   const q = 'Nice work \u2014 ' + elapsedMin + ' minutes of pumping logged. How much did you get?';
   addMsg('bot', q);
   history = [{role:'assistant', content:q}];
+  currentSection = 'pump_amount';
   renderSteps('pump_amount');
   speak(q, handsFree ? startListening : null);
   if(handsFree && muted) setTimeout(startListening, 350);
@@ -1545,6 +1712,7 @@ function greetPump(elapsedMin){
 
 function resetChat(){
   collected = {}; awaitingConfirmation = false; history = [];
+  currentSection = 'when';
   renderSteps(null);
   document.getElementById('log').innerHTML = '';
   renderCaptured();
@@ -1578,7 +1746,9 @@ function spark(values, color){
 function avg(a){ return a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0; }
 function fmtMin(m){
   m = Math.round(m);
-  return m >= 60 ? Math.floor(m/60)+'h '+(m%60)+'m' : m+'m';
+  if(m < 60) return m + 'm';
+  const h = Math.floor(m/60), r = m % 60;
+  return r ? h+'h '+r+'m' : h+'h';
 }
 function hourLabel(h){
   const s = h % 12 === 0 ? 12 : h % 12;
@@ -1842,7 +2012,9 @@ function fmtMS(ms){
 }
 function fmtHM(ms){
   const m = Math.max(0, Math.floor(ms/60000));
-  return m >= 60 ? Math.floor(m/60)+'h '+(m%60)+'m' : m+'m';
+  if(m < 60) return m + 'm';
+  const h = Math.floor(m/60), r = m % 60;
+  return r ? h+'h '+r+'m' : h+'h';
 }
 function chime(){
   try{
@@ -1971,6 +2143,7 @@ function nurseFinish(){
   const q = 'Got it \u2014 ' + L + ' min left, ' + R + ' min right. Any bottle or pumping with this one?';
   addMsg('bot', q);
   history = [{role:'assistant', content:q}];
+  currentSection = 'bottle';
   renderSteps('bottle');
   speak(q, handsFree ? startListening : null);
   if(handsFree && muted) setTimeout(startListening, 350);
@@ -2168,6 +2341,12 @@ function initTimers(){
   document.getElementById('ptgtDown').onclick = () => { T.pump.target = Math.max(1, T.pump.target-1); T.pump.warned={}; saveTimers(); renderPump(); };
 
   document.getElementById('sleepToggle').onclick = sleepToggle;
+  document.getElementById('sleepManualBtn').onclick = () => {
+    openPanel(null);
+    collected = {}; awaitingConfirmation = false; history = [];
+    renderCaptured();
+    openSheet(null, 'sleep');
+  };
   document.getElementById('sleepCancel').onclick = () => {
     T.sleep = { running:false, startedAt:null }; saveTimers(); renderSleep();
   };
@@ -2180,83 +2359,126 @@ function initTimers(){
  * Wheels beat a dial one-handed: flick to the number, no aiming.
  */
 const ITEM_H = 40;
-let clk = { hour: 8, min: 15, mer: 'AM' };
-let calCursor = null; // {y, m} month currently shown
+let calCursor = null; // {y, m} of the month the calendar is showing
 
-function clockToString(){
-  return clk.hour + ':' + String(clk.min).padStart(2,'0') + ' ' + clk.mer;
-}
-function parseIntoClock(str){
-  const m = String(str||'').match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i)
-         || String(nowTimeStr()).match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-  if(m){
-    clk.hour = Math.min(12, Math.max(1, parseInt(m[1],10) || 12));
-    clk.min  = Math.min(59, Math.max(0, parseInt(m[2],10)));
-    clk.mer  = /pm/i.test(m[3]) ? 'PM' : 'AM';
+/* A reusable wheel time picker, so the entry time and both sleep times all
+   behave identically instead of one being special. */
+function makeTimePicker(mount, hidden, opts){
+  opts = opts || {};
+  let st = { h:8, m:0, mer:'AM', empty:!!opts.clearable };
+
+  mount.innerHTML =
+    '<button type="button" class="time-display">' +
+      '<span class="tp-text">\u2014</span><span class="caret">\u2304</span>' +
+    '</button>' +
+    '<div class="clock-pop">' +
+      '<div class="wheels"><div class="wheel-band"></div>' +
+        '<div class="wheel tp-h"></div><div class="wheel tp-m"></div><div class="wheel tp-r"></div>' +
+      '</div>' +
+      '<div class="wheel-lbls"><span>Hour</span><span>Min</span><span>AM/PM</span></div>' +
+      '<div class="tp-row">' +
+        '<button type="button" class="now-btn tp-now">Set to right now</button>' +
+        (opts.clearable ? '<button type="button" class="now-btn tp-clear">Clear</button>' : '') +
+      '</div>' +
+    '</div>';
+
+  const disp = mount.querySelector('.time-display');
+  const text = mount.querySelector('.tp-text');
+  const pop  = mount.querySelector('.clock-pop');
+  const wh = mount.querySelector('.tp-h'), wm = mount.querySelector('.tp-m'), wr = mount.querySelector('.tp-r');
+
+  const build = (el, vals) => {
+    el.innerHTML = vals.map(v => '<div class="wheel-item">'+v+'</div>').join('');
+  };
+  build(wh, Array.from({length:12},(_,i)=>i+1));
+  build(wm, Array.from({length:60},(_,i)=>String(i).padStart(2,'0')));
+  build(wr, ['AM','PM']);
+
+  const mark = (el, i) => el.querySelectorAll('.wheel-item')
+    .forEach((it,n)=>it.classList.toggle('sel', n===i));
+  const setW = (el, i, smooth) => {
+    el.scrollTo({top:i*ITEM_H, behavior: smooth ? 'smooth' : 'auto'});
+    mark(el, i);
+  };
+  const wire = (el, cb) => {
+    let t=null;
+    el.addEventListener('scroll', () => {
+      const i = Math.round(el.scrollTop/ITEM_H);
+      mark(el, i);
+      clearTimeout(t);
+      t = setTimeout(()=>{ cb(Math.round(el.scrollTop/ITEM_H)); }, 110);
+    }, {passive:true});
+  };
+
+  function str(){
+    return st.empty ? '' : st.h + ':' + String(st.m).padStart(2,'0') + ' ' + st.mer;
   }
-}
+  function sync(){
+    const v = str();
+    hidden.value = v;
+    text.textContent = v || (opts.placeholder || 'Not set');
+    text.style.color = v ? 'var(--ink)' : 'var(--ink-faint)';
+    if(opts.onChange) opts.onChange();
+  }
+  function push(smooth){
+    setW(wh, st.h-1, smooth); setW(wm, st.m, smooth); setW(wr, st.mer==='PM'?1:0, smooth);
+  }
 
-function buildWheel(el, values){
-  el.innerHTML = values.map(v => '<div class="wheel-item">'+v+'</div>').join('');
-}
-function wheelSet(el, idx, smooth){
-  el.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'auto' });
-  markWheel(el, idx);
-}
-function wheelIndex(el){
-  return Math.round(el.scrollTop / ITEM_H);
-}
-function markWheel(el, idx){
-  el.querySelectorAll('.wheel-item').forEach((it,i) => it.classList.toggle('sel', i === idx));
-}
+  wire(wh, i => { st.h = i+1; st.empty = false; sync(); });
+  wire(wm, i => { st.m = i;   st.empty = false; sync(); });
+  wire(wr, i => { st.mer = i===1?'PM':'AM'; st.empty = false; sync(); });
 
-function wireWheel(el, onPick){
-  let t = null;
-  el.addEventListener('scroll', () => {
-    const idx = wheelIndex(el);
-    markWheel(el, idx);
-    clearTimeout(t);
-    t = setTimeout(() => onPick(wheelIndex(el)), 110);
-  }, {passive:true});
-}
-
-function syncTimeUI(){
-  const txt = clockToString();
-  document.getElementById('timeText').textContent = txt;
-  document.getElementById('timeField').value = txt;
-}
-
-function initWheels(){
-  const wh = document.getElementById('wheelHour');
-  const wm = document.getElementById('wheelMin');
-  const wr = document.getElementById('wheelMer');
-
-  buildWheel(wh, Array.from({length:12}, (_,i) => i+1));
-  buildWheel(wm, Array.from({length:60}, (_,i) => String(i).padStart(2,'0')));
-  buildWheel(wr, ['AM','PM']);
-
-  wireWheel(wh, i => { clk.hour = i + 1; syncTimeUI(); });
-  wireWheel(wm, i => { clk.min = i; syncTimeUI(); });
-  wireWheel(wr, i => { clk.mer = i === 1 ? 'PM' : 'AM'; syncTimeUI(); });
-
-  document.getElementById('timeDisplay').onclick = () => {
-    const pop = document.getElementById('clockPop');
+  disp.onclick = () => {
     const open = !pop.classList.contains('open');
     pop.classList.toggle('open', open);
-    document.getElementById('timeDisplay').classList.toggle('open', open);
-    if(open) requestAnimationFrame(pushWheels); // scroll only works once visible
+    disp.classList.toggle('open', open);
+    if(open) requestAnimationFrame(()=>push(false));
   };
+  mount.querySelector('.tp-now').onclick = () => {
+    const m = nowTimeStr().match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if(m){ st.h=+m[1]; st.m=+m[2]; st.mer=/pm/i.test(m[3])?'PM':'AM'; st.empty=false; }
+    sync(); push(true);
+  };
+  const clr = mount.querySelector('.tp-clear');
+  if(clr) clr.onclick = () => { st.empty = true; sync(); };
 
-  document.getElementById('nowBtn').onclick = () => {
-    parseIntoClock(nowTimeStr());
-    syncTimeUI(); pushWheels(true);
+  return {
+    set(v){
+      const m = String(v||'').match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if(m){ st.h=Math.min(12,Math.max(1,+m[1])); st.m=Math.min(59,+m[2]);
+             st.mer=/pm/i.test(m[3])?'PM':'AM'; st.empty=false; }
+      else if(opts.clearable){ st.empty = true; }
+      else {
+        const n = nowTimeStr().match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+        if(n){ st.h=+n[1]; st.m=+n[2]; st.mer=/pm/i.test(n[3])?'PM':'AM'; }
+        st.empty = false;
+      }
+      sync();
+      pop.classList.remove('open'); disp.classList.remove('open');
+    },
+    value: () => str()
   };
 }
 
-function pushWheels(smooth){
-  wheelSet(document.getElementById('wheelHour'), clk.hour - 1, !!smooth);
-  wheelSet(document.getElementById('wheelMin'), clk.min, !!smooth);
-  wheelSet(document.getElementById('wheelMer'), clk.mer === 'PM' ? 1 : 0, !!smooth);
+let TP = {};
+function initWheels(){
+  TP.time = makeTimePicker(document.getElementById('timeMount'),
+                           document.getElementById('timeField'));
+  TP.sleepStart = makeTimePicker(document.getElementById('sleepStartMount'),
+                                 document.getElementById('sleepStartField'),
+                                 { clearable:true, placeholder:'Not set', onChange:updateSleepDur });
+  TP.sleepEnd = makeTimePicker(document.getElementById('sleepEndMount'),
+                               document.getElementById('sleepEndField'),
+                               { clearable:true, placeholder:'Not set', onChange:updateSleepDur });
+}
+
+function updateSleepDur(){
+  const a = toMinutes(document.getElementById('sleepStartField').value);
+  const b = toMinutes(document.getElementById('sleepEndField').value);
+  const el = document.getElementById('sleepDur');
+  if(a === null || b === null){ el.textContent = ''; return; }
+  let d = b - a; if(d < 0) d += 1440;
+  el.textContent = 'That\u2019s ' + (d >= 60 ? Math.floor(d/60)+'h '+(d%60)+'m' : d+'m') + ' of sleep';
 }
 
 /* ---------- Calendar ---------- */
@@ -2338,7 +2560,8 @@ function initCalendar(){
 
 function initClock(){ initWheels(); initCalendar(); }
 
-const SEG_OPTS = { pump_mode: ['\u2014','Both','Each'] };
+const SEG_OPTS = { pump_mode: ['Not set','Both at once','One at a time'] };
+const SEG_VALS = { pump_mode: { 'Not set':'', 'Both at once':'Both', 'One at a time':'Each' } };
 function buildSegs(){
   document.querySelectorAll('.seg').forEach(seg => {
     const opts = SEG_OPTS[seg.dataset.seg] || LEVELS;
@@ -2369,7 +2592,7 @@ function getSegRaw(name){
   return on ? on.dataset.v : '';
 }
 
-function openSheet(existing){
+function openSheet(existing, focus){
   const src = existing || Object.assign({date: todayStr(), time: nowTimeStr()}, collected);
   editingRow = existing ? existing.row : null;
 
@@ -2391,18 +2614,30 @@ function openSheet(existing){
   });
   setSeg('pee', src.pee);
   setSeg('poop', src.poop);
-  setSegRaw('pump_mode', src.pump_mode || '\u2014');
+  setSegRaw('pump_mode', src.pump_mode === 'Both' ? 'Both at once'
+                        : src.pump_mode === 'Each' ? 'One at a time' : 'Not set');
 
-  parseIntoClock(src.time);
-  syncTimeUI();
+  TP.time.set(src.time);
+  TP.sleepStart.set(src.sleep_start || '');
+  TP.sleepEnd.set(src.sleep_end || '');
+  updateSleepDur();
   setDate(src.date || todayStr());
   calCursor = null;
-  document.getElementById('clockPop').classList.remove('open');
-  document.getElementById('timeDisplay').classList.remove('open');
   document.getElementById('calPop').classList.remove('open');
   document.getElementById('dateDisplay').classList.remove('open');
 
+  if(focus === 'sleep'){
+    document.getElementById('sheetTitle').textContent = 'Log a sleep';
+    document.getElementById('sheetSub').textContent = 'Just the times she went down and woke up.';
+  }
+
   document.getElementById('scrim').classList.add('open');
+  if(focus === 'sleep'){
+    setTimeout(() => {
+      const el = document.getElementById('sleepStartMount');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 340);
+  }
 }
 function closeSheet(){
   document.getElementById('scrim').classList.remove('open');
@@ -2416,8 +2651,7 @@ document.getElementById('saveEntryBtn').onclick = async () => {
   });
   payload.pee = getSeg('pee');
   payload.poop = getSeg('poop');
-  const pm = getSegRaw('pump_mode');
-  payload.pump_mode = (pm === '\u2014') ? '' : pm;
+  payload.pump_mode = SEG_VALS.pump_mode[getSegRaw('pump_mode')] || '';
 
   const toast = document.getElementById('sheetToast');
   toast.textContent = 'Saving…'; toast.style.color = 'var(--ink-soft)';
@@ -2504,76 +2738,199 @@ document.getElementById('datePicker').onchange = (e) => {
   if(e.target.value){ viewDate = e.target.value; loadEntries(); }
 };
 
-/* ============ Voice ============ */
+/* ============ Speech to text ============
+ * The browser's own recogniser is poor and cuts off at pauses. We record real
+ * audio instead and send it to Whisper, which is far more accurate and can be
+ * primed with this app's vocabulary. The browser recogniser stays as a fallback.
+ */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-// Default recognition submits at the first pause, which cuts people off
-// mid-sentence. Instead we listen continuously and only submit after a real
-// stretch of silence (or when the parent taps the mic to finish).
-const SILENCE_MS = 2600;
-let finalTranscript = '';
-let silenceTimer = null;
+const CAN_RECORD = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 
-function armSilenceTimer(){
-  clearTimeout(silenceTimer);
-  silenceTimer = setTimeout(() => {
-    try{ recognition.stop(); }catch(e){}
-  }, SILENCE_MS);
+let mediaRec = null, mediaStream = null, audioChunks = [];
+let audioCtx = null, analyser = null, levelRAF = null;
+let heardSpeech = false, quietSince = null, hardStopTimer = null;
+
+const SILENCE_HOLD_MS = 2200;   // how long a pause must last before we stop
+const MAX_RECORD_MS   = 45000;  // safety cap
+const SPEECH_RMS      = 0.022;  // above this counts as speech
+
+function pickMime(){
+  const opts = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  for(const m of opts){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  }
+  return '';
 }
 
-if(SR){
-  recognition = new SR();
-  recognition.lang = 'en-US';
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.onstart = () => {
-    recognizing = true;
-    finalTranscript = '';
-    document.getElementById('micBtn').classList.add('listening');
-    document.getElementById('micStatus').textContent = 'Listening… tap when you\u2019re done';
-    armSilenceTimer();
-  };
-  recognition.onend = () => {
-    recognizing = false;
-    clearTimeout(silenceTimer);
-    document.getElementById('micBtn').classList.remove('listening');
-    const said = finalTranscript.trim();
-    finalTranscript = '';
-    if(said){
-      processInput(said);
-    } else {
-      document.getElementById('micStatus').textContent = 'Tap to talk';
-    }
-  };
-  recognition.onerror = (ev) => {
-    recognizing = false;
-    document.getElementById('micBtn').classList.remove('listening');
+function setMicUI(on){
+  const btn = document.getElementById('micBtn');
+  btn.classList.toggle('listening', on);
+  recognizing = on;
+  if(!on) document.getElementById('level').innerHTML = '';
+}
+
+function renderLevel(rms){
+  // A live meter so a pause reads as "still listening", not "frozen"
+  const bars = 7;
+  const lit = Math.min(bars, Math.round((rms / 0.14) * bars));
+  let html = '';
+  for(let i = 0; i < bars; i++){
+    const h = 5 + i * 2;
+    html += '<i style="height:'+h+'px;opacity:'+(i < lit ? 1 : .22)+'"></i>';
+  }
+  document.getElementById('level').innerHTML = html;
+}
+
+async function startRecording(){
+  if(recognizing) return;
+  try{
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+    });
+  }catch(e){
+    addMsg('system', 'I need microphone access \u2014 allow it for this site and try again.');
+    return;
+  }
+
+  stopSpeaking();
+
+  const mime = pickMime();
+  try{
+    mediaRec = mime ? new MediaRecorder(mediaStream, {mimeType:mime}) : new MediaRecorder(mediaStream);
+  }catch(e){
+    stopTracks();
+    return legacyListen();
+  }
+
+  audioChunks = [];
+  heardSpeech = false;
+  quietSince = null;
+
+  mediaRec.ondataavailable = e => { if(e.data && e.data.size) audioChunks.push(e.data); };
+  mediaRec.onstop = onRecordingStopped;
+  mediaRec.start(120);
+
+  setMicUI(true);
+  document.getElementById('micStatus').textContent = 'Listening\u2026 tap when you\u2019re done';
+  holdScreen(true);
+
+  // Watch the level so we can stop on a genuine pause
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaStreamSource(mediaStream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+    src.connect(analyser);
+    const buf = new Float32Array(analyser.fftSize);
+
+    const tick = () => {
+      if(!recognizing) return;
+      analyser.getFloatTimeDomainData(buf);
+      let sum = 0;
+      for(let i = 0; i < buf.length; i++) sum += buf[i]*buf[i];
+      const rms = Math.sqrt(sum / buf.length);
+      renderLevel(rms);
+
+      if(rms > SPEECH_RMS){ heardSpeech = true; quietSince = null; }
+      else if(heardSpeech){
+        if(quietSince === null) quietSince = Date.now();
+        else if(Date.now() - quietSince > SILENCE_HOLD_MS) stopRecording();
+      }
+      levelRAF = requestAnimationFrame(tick);
+    };
+    tick();
+  }catch(e){}
+
+  hardStopTimer = setTimeout(stopRecording, MAX_RECORD_MS);
+}
+
+function stopTracks(){
+  if(mediaStream){ mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+  if(levelRAF){ cancelAnimationFrame(levelRAF); levelRAF = null; }
+  if(audioCtx){ try{ audioCtx.close(); }catch(e){} audioCtx = null; }
+  if(hardStopTimer){ clearTimeout(hardStopTimer); hardStopTimer = null; }
+}
+
+function stopRecording(){
+  if(mediaRec && mediaRec.state !== 'inactive'){
+    try{ mediaRec.stop(); }catch(e){}
+  }
+  setMicUI(false);
+}
+
+async function onRecordingStopped(){
+  stopTracks();
+  const blob = new Blob(audioChunks, { type: mediaRec.mimeType || 'audio/webm' });
+  audioChunks = [];
+
+  if(!heardSpeech || blob.size < 1200){
     document.getElementById('micStatus').textContent = 'Tap to talk';
-    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
-      addMsg('system', 'Microphone access is blocked — allow it for this site in your browser settings.');
-    } else if(ev.error === 'no-speech'){
-      addMsg('system', "I didn't hear anything — tap the mic and try again.");
-    } else if(ev.error !== 'aborted'){
-      addMsg('system', 'Mic trouble (' + ev.error + ') — you can type it below instead.');
+    addMsg('system', "I didn't hear anything \u2014 tap the mic and try again.");
+    return;
+  }
+
+  document.getElementById('micStatus').textContent = 'Transcribing\u2026';
+  try{
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+    const resp = await api({ action:'transcribe', audio:b64, mime:blob.type,
+                             section: mode === 'ask' ? 'ask' : currentSection });
+    if(resp.status !== 'success') throw new Error(resp.message || 'transcription failed');
+    const text = (resp.text || '').trim();
+    if(!text){
+      document.getElementById('micStatus').textContent = 'Tap to talk';
+      addMsg('system', "I couldn't make that out \u2014 try again, or type it below.");
+      return;
     }
-  };
-  recognition.onresult = (e) => {
-    let interim = '';
-    for(let i = e.resultIndex; i < e.results.length; i++){
-      const res = e.results[i];
-      if(res.isFinal) finalTranscript += res[0].transcript + ' ';
-      else interim += res[0].transcript;
-    }
-    // Live feedback, so a pause never looks like a freeze
-    const live = (finalTranscript + interim).trim();
-    document.getElementById('micStatus').textContent = live
-      ? '“' + (live.length > 46 ? '…' + live.slice(-46) : live) + '”'
-      : 'Listening… tap when you\u2019re done';
-    armSilenceTimer();
-  };
-} else {
-  document.getElementById('micStatus').textContent = 'Voice needs Chrome — type below instead';
-  document.getElementById('micBtn').disabled = true;
+    processInput(text);
+  }catch(e){
+    document.getElementById('micStatus').textContent = 'Tap to talk';
+    addMsg('system', 'Transcription failed \u2014 ' + (e.message || e) + '. You can type it below.');
+  }
 }
+
+/* ---- Fallback: the browser recogniser, when recording isn't available ---- */
+let finalTranscript = '', silenceTimer = null;
+function legacyListen(){
+  if(!SR){
+    addMsg('system', 'Voice input isn\u2019t supported here \u2014 please type it below.');
+    return;
+  }
+  if(!recognition){
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onstart = () => {
+      setMicUI(true); finalTranscript = '';
+      document.getElementById('micStatus').textContent = 'Listening\u2026 tap when you\u2019re done';
+    };
+    recognition.onend = () => {
+      setMicUI(false);
+      clearTimeout(silenceTimer);
+      const said = finalTranscript.trim(); finalTranscript = '';
+      if(said) processInput(said);
+      else document.getElementById('micStatus').textContent = 'Tap to talk';
+    };
+    recognition.onerror = () => { setMicUI(false); document.getElementById('micStatus').textContent = 'Tap to talk'; };
+    recognition.onresult = (e) => {
+      let interim = '';
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        const r = e.results[i];
+        if(r.isFinal) finalTranscript += r[0].transcript + ' '; else interim += r[0].transcript;
+      }
+      document.getElementById('micStatus').textContent = (finalTranscript + interim).trim() || 'Listening\u2026';
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => { try{ recognition.stop(); }catch(e){} }, 2600);
+    };
+  }
+  try{ recognition.start(); }catch(e){}
+}
+
 function applyHandsFree(v){
   handsFree = v;
   document.getElementById('hfSwitch').classList.toggle('on', v);
@@ -2587,16 +2944,26 @@ function initHandsFree(){
   applyHandsFree(saved === '1');
 }
 
+function startListening(){
+  if(recognizing) return;
+  if(CAN_RECORD && webhookUrl && secret) startRecording();
+  else legacyListen();
+}
+
 document.getElementById('micBtn').onclick = () => {
-  if(!recognition) return;
-  if(recognizing){ recognition.stop(); return; }
-  holdScreen(true);
-  // TTS playing while the mic opens makes Chrome return empty transcripts.
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  try{ recognition.start(); }catch(e){
-    try{ recognition.stop(); setTimeout(() => recognition.start(), 250); }catch(e2){}
+  if(recognizing){
+    if(mediaRec && mediaRec.state !== 'inactive') stopRecording();
+    else { try{ recognition && recognition.stop(); }catch(e){} }
+    return;
   }
+  startListening();
 };
+
+if(!CAN_RECORD && !SR){
+  document.getElementById('micStatus').textContent = 'Voice needs Chrome \u2014 type below instead';
+  document.getElementById('micBtn').disabled = true;
+}
+
 document.getElementById('typeSendBtn').onclick = () => {
   const v = document.getElementById('typeInput').value.trim();
   if(!v) return;
@@ -2616,6 +2983,7 @@ document.getElementById('manualBtn').onclick = () => {
 /* ============ Boot ============ */
 initTheme();
 initMute();
+initVoice();
 initHandsFree();
 initTimers();
 renderQueueBadge();
